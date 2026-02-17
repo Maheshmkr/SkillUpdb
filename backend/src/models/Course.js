@@ -1,0 +1,90 @@
+const mongoose = require('mongoose');
+
+const lessonSchema = mongoose.Schema({
+    id: String,
+    title: { type: String, required: true },
+    type: { type: String, enum: ['video', 'article', 'quiz'], default: 'video' },
+    duration: String,
+    contentUrl: String, // Video URL or article URL
+    file: {
+        name: String,
+        size: Number,
+        fileType: String
+    },
+    description: String, // Lesson description shown in preview
+    questions: [
+        {
+            id: String,
+            question: String,
+            options: [String],
+            correctAnswer: Number
+        }
+    ]
+});
+
+const moduleSchema = mongoose.Schema({
+    id: String,
+    title: { type: String, required: true },
+    lessons: [lessonSchema]
+});
+
+const courseSchema = mongoose.Schema(
+    {
+        // Basic Info (Step 1)
+        title: { type: String, required: true },
+        subtitle: String,
+        category: { type: String, required: true },
+        level: { type: String, enum: ['Beginner', 'Intermediate', 'Advanced', 'All Levels'], default: 'Beginner' },
+        language: { type: String, default: 'English' },
+        duration: String, // e.g., "12h 30m"
+        thumbnail: String,
+
+        // Course Details (Step 2)
+        whatYouWillLearn: [String],
+        skills: [String],
+        includes: [String],
+        requirements: [String],
+        targetAudience: [String],
+        price: { type: Number, required: true },
+        originalPrice: Number,
+        hasMoneyBackGuarantee: { type: Boolean, default: false },
+
+        // Curriculum (Step 3)
+        modules: [moduleSchema],
+
+        // Instructor Info
+        instructorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+        instructor: { type: String, required: true }, // Instructor name for display
+
+        // Approval Workflow
+        status: {
+            type: String,
+            enum: ['Draft', 'Pending Review', 'Published', 'Rejected'],
+            default: 'Draft'
+        },
+        rejectionReason: String,
+
+        // Analytics & Display
+        students: { type: Number, default: 0 },
+        rating: { type: Number, default: 0 },
+        reviews: { type: Number, default: 0 },
+        image: String, // Fallback to thumbnail
+        badge: String,
+        badgeColor: String,
+
+        // Legacy fields for compatibility
+        hours: Number,
+        description: String,
+    },
+    {
+        timestamps: true,
+    }
+);
+
+// Virtual for image fallback
+courseSchema.virtual('displayImage').get(function () {
+    return this.image || this.thumbnail || '/assets/course-placeholder.jpg';
+});
+
+module.exports = mongoose.model('Course', courseSchema);
+

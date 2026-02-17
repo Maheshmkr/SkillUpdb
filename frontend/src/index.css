@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20% 97%;
+    --foreground: 213 32% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 213 32% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 213 32% 10%;
+
+    --primary: 211 89% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 214 32% 94%;
+    --secondary-foreground: 213 32% 10%;
+
+    --muted: 214 32% 94%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 211 89% 96%;
+    --accent-foreground: 211 89% 50%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 211 89% 50%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 215 16% 47%;
+    --sidebar-primary: 211 89% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 211 89% 96%;
+    --sidebar-accent-foreground: 211 89% 50%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 211 89% 50%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+  }
+
+  .dark {
+    --background: 213 47% 10%;
+    --foreground: 210 40% 98%;
+
+    --card: 217 33% 12%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 217 33% 12%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 211 89% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 211 89% 15%;
+    --accent-foreground: 211 89% 70%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 211 89% 50%;
+
+    --sidebar-background: 213 47% 10%;
+    --sidebar-foreground: 215 20% 65%;
+    --sidebar-primary: 211 89% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 211 89% 15%;
+    --sidebar-accent-foreground: 211 89% 70%;
+    --sidebar-border: 217 33% 17%;
+    --sidebar-ring: 211 89% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-display antialiased;
+  }
+}
+
+@layer utilities {
+  .course-card {
+    @apply transition-all duration-300;
+  }
+  .course-card:hover {
+    transform: translateY(-4px);
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
