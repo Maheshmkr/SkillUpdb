@@ -50,9 +50,17 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
+    console.log(`🔐 Login attempt for: ${email}`);
+
     // Check for user email
     const user = await User.findOne({ email });
 
+    if (!user) {
+        console.log(`❌ No user found with email: ${email}`);
+    } else {
+        const isMatch = await user.matchPassword(password);
+        console.log(`👤 User found: ${user.name}, Password match: ${isMatch}`);
+    }
 
     if (user && (await user.matchPassword(password))) {
         res.json({

@@ -22,11 +22,13 @@ export default function Dashboard() {
   });
 
   // Fetch User Profile for Enrollment
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
   const { data: user, isLoading: loadingProfile } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
       return await getUserProfile();
-    }
+    },
+    enabled: !!userInfo.token
   });
 
   const enrolledCourses = user?.enrolledCourses || [];
@@ -74,7 +76,7 @@ export default function Dashboard() {
                   </Link>
                 </div>
                 {mainCourse && (
-                  <Link to={`/course/${mainCourse.id || mainCourse._id}`} className="group relative overflow-hidden bg-card rounded-2xl shadow-md border border-border transition-all hover:shadow-xl block">
+                  <div className="group relative overflow-hidden bg-card rounded-2xl shadow-md border border-border transition-all hover:shadow-xl block">
                     <div className="flex flex-col md:flex-row">
                       <div className="md:w-1/3 aspect-video md:aspect-auto h-auto relative overflow-hidden">
                         <div
@@ -111,7 +113,7 @@ export default function Dashboard() {
                             <Clock className="size-3" /> Last viewed Recently
                           </div>
                           <Link
-                            to={`/learning/${mainCourse.id || mainCourse._id}`}
+                            to={`/learn/${mainCourse.id || mainCourse._id}`}
                             className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-2.5 rounded-lg font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all"
                           >
                             <Play className="size-4 fill-current" />
@@ -120,7 +122,7 @@ export default function Dashboard() {
                         </div>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 )}
               </section>
 
@@ -142,7 +144,7 @@ export default function Dashboard() {
                     if (!c) return null;
 
                     return (
-                      <Link to={`/learning/${c.id || c._id || enrollment.course}`} key={idx} className="bg-card rounded-xl overflow-hidden border border-border shadow-sm hover:shadow-md transition-all block">
+                      <Link to={`/learn/${c.id || c._id || enrollment.course}`} key={idx} className="bg-card rounded-xl overflow-hidden border border-border shadow-sm hover:shadow-md transition-all block">
                         <div className="h-32 bg-cover bg-center" style={{ backgroundImage: `url(${c.image})` }} />
                         <div className="p-4">
                           <h4 className="font-bold text-sm mb-1 line-clamp-1">{c.title}</h4>

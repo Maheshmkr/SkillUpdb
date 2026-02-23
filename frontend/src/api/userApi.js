@@ -1,15 +1,8 @@
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
-const getAuthHeader = () => {
-    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-    return userInfo.token ? { Authorization: `Bearer ${userInfo.token}` } : {};
-};
+import axiosInstance from './axiosInstance';
 
 export const getUserProfile = async () => {
     try {
-        const response = await axios.get(`${API_URL}/users/profile`, { headers: getAuthHeader() });
+        const response = await axiosInstance.get('/users/profile');
         return response.data;
     } catch (error) {
         console.error('Error fetching user profile:', error.response?.data || error.message);
@@ -19,7 +12,7 @@ export const getUserProfile = async () => {
 
 export const getUserProgress = async (courseId) => {
     try {
-        const response = await axios.get(`${API_URL}/users/progress/${courseId}`, { headers: getAuthHeader() });
+        const response = await axiosInstance.get(`/users/progress/${courseId}`);
         return response.data;
     } catch (error) {
         console.error(`Error fetching progress for course ${courseId}:`, error.response?.data || error.message);
@@ -29,7 +22,7 @@ export const getUserProgress = async (courseId) => {
 
 export const updateCourseProgress = async (progressData) => {
     try {
-        const response = await axios.put(`${API_URL}/users/progress`, progressData, { headers: getAuthHeader() });
+        const response = await axiosInstance.put('/users/progress', progressData);
         return response.data;
     } catch (error) {
         console.error('Error updating course progress:', error.response?.data || error.message);
@@ -39,7 +32,7 @@ export const updateCourseProgress = async (progressData) => {
 
 export const enrollInCourse = async (courseId) => {
     try {
-        const response = await axios.post(`${API_URL}/users/enroll`, { courseId }, { headers: getAuthHeader() });
+        const response = await axiosInstance.post('/users/enroll', { courseId });
         return response.data;
     } catch (error) {
         console.error('Error enrolling in course:', error.response?.data || error.message);

@@ -15,15 +15,22 @@ const protect = asyncHandler(async (req, res, next) => {
 
             // Verify token
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            console.log('🔑 Token verified for user ID:', decoded.id);
 
             // Get user from the token
             req.user = await User.findById(decoded.id).select('-password');
 
+            if (!req.user) {
+                console.log('❌ User not found for token');
+                res.status(401);
+                throw new Error('Not authorized, user not found');
+            }
+
             next();
         } catch (error) {
-            console.error(error);
+            console.error('❌ Auth Error:', error.message);
             res.status(401);
-            throw new Error('Not authorized, token failed');
+            throw new Error(`Not authorized, token failed: ${error.message}`);
         }
     }
 

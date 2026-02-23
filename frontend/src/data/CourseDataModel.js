@@ -6,7 +6,7 @@ export const initialCourseData = {
     level: "Beginner",
     language: "English",
     thumbnail: null, // File object or URL string
-    videoUrl: "",
+    contentUrl: "",
     duration: "", // e.g., "12h 30m"
     totalHours: 0,
     description: "", // HTML or rich text

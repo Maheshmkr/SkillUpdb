@@ -4,12 +4,14 @@ import Dashboard from "./pages/Dashboard";
 import Explore from "./pages/Explore";
 import MyLearning from "./pages/MyLearning";
 import Profile from "./pages/Profile";
-import CourseDetail from "./pages/CourseDetail";
-import LearningInterface from "./pages/LearningInterface";
+import CourseDetailBeforeEnroll from "./pages/CourseDetailBeforeEnroll";
+import LearningPlayer from "./pages/LearningPlayer";
+import AchievementsPage from "./pages/AchievementsPage";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import EnrollmentSuccess from "./pages/EnrollmentSuccess";
 import NotFound from "./pages/NotFound";
+
 
 import InstructorDashboard from "./pages/instructor/Dashboard";
 import InstructorMyCourses from "./pages/instructor/MyCourses";
@@ -29,45 +31,58 @@ import Reports from "./pages/admin/Reports";
 import AuditLogs from "./pages/admin/AuditLogs";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Navigate } from "react-router-dom";
 
 const queryClient = new QueryClient();
+
+// Simple Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
+  if (!userInfo || !userInfo.token) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
         <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/explore" element={<Explore />} />
-          <Route path="/my-learning" element={<MyLearning />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/course/:id" element={<CourseDetail />} />
-          <Route path="/learning/:courseId" element={<LearningInterface />} />
+          {/* Auth Routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/enrollment-success" element={<EnrollmentSuccess />} />
+
+          {/* Protected Routes */}
+          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/explore" element={<ProtectedRoute><Explore /></ProtectedRoute>} />
+          <Route path="/course/:id" element={<ProtectedRoute><CourseDetailBeforeEnroll /></ProtectedRoute>} />
+          <Route path="/learn/:courseId" element={<ProtectedRoute><LearningPlayer /></ProtectedRoute>} />
+          <Route path="/learn/:courseId/achievements" element={<ProtectedRoute><AchievementsPage /></ProtectedRoute>} />
+          <Route path="/my-learning" element={<ProtectedRoute><MyLearning /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/enrollment-success" element={<ProtectedRoute><EnrollmentSuccess /></ProtectedRoute>} />
 
           {/* Instructor Portal Routes */}
-          <Route path="/instructor/dashboard" element={<InstructorDashboard />} />
-          <Route path="/instructor/courses" element={<InstructorMyCourses />} />
-          <Route path="/instructor/courses/new" element={<InstructorCourseWizard />} />
-          <Route path="/instructor/courses/:courseId/edit" element={<InstructorCourseWizard />} />
-          <Route path="/instructor/courses/preview" element={<LearnerCoursePreview />} />
-          {/* Legacy Create Route - keeping for reference if needed */}
-          {/* <Route path="/instructor/courses/create" element={<CreateCourse />} /> */}
-          <Route path="/instructor/enrollments" element={<InstructorEnrollments />} />
-          <Route path="/instructor/analytics" element={<CourseAnalytics />} />
-          <Route path="/instructor/reviews" element={<InstructorReviews />} />
-          <Route path="/instructor/profile" element={<InstructorProfile />} />
+          <Route path="/instructor/dashboard" element={<ProtectedRoute><InstructorDashboard /></ProtectedRoute>} />
+          <Route path="/instructor/courses" element={<ProtectedRoute><InstructorMyCourses /></ProtectedRoute>} />
+          <Route path="/instructor/courses/new" element={<ProtectedRoute><InstructorCourseWizard /></ProtectedRoute>} />
+          <Route path="/instructor/courses/:courseId/edit" element={<ProtectedRoute><InstructorCourseWizard /></ProtectedRoute>} />
+          <Route path="/instructor/courses/:id/preview/before" element={<ProtectedRoute><CourseDetailBeforeEnroll /></ProtectedRoute>} />
+          <Route path="/instructor/courses/:courseId/preview/after" element={<ProtectedRoute><LearningPlayer /></ProtectedRoute>} />
+          <Route path="/instructor/enrollments" element={<ProtectedRoute><InstructorEnrollments /></ProtectedRoute>} />
+          <Route path="/instructor/analytics" element={<ProtectedRoute><CourseAnalytics /></ProtectedRoute>} />
+          <Route path="/instructor/reviews" element={<ProtectedRoute><InstructorReviews /></ProtectedRoute>} />
+          <Route path="/instructor/profile" element={<ProtectedRoute><InstructorProfile /></ProtectedRoute>} />
+
 
           {/* Admin Portal Routes */}
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/course-approvals" element={<CourseApprovals />} />
-          <Route path="/admin/users" element={<ManageUsers />} />
-          <Route path="/admin/instructors" element={<ManageInstructors />} />
-          <Route path="/admin/reports" element={<Reports />} />
-          <Route path="/admin/audit-logs" element={<AuditLogs />} />
+          <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin/course-approvals" element={<ProtectedRoute><CourseApprovals /></ProtectedRoute>} />
+          <Route path="/admin/users" element={<ProtectedRoute><ManageUsers /></ProtectedRoute>} />
+          <Route path="/admin/instructors" element={<ProtectedRoute><ManageInstructors /></ProtectedRoute>} />
+          <Route path="/admin/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+          <Route path="/admin/audit-logs" element={<ProtectedRoute><AuditLogs /></ProtectedRoute>} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>

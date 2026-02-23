@@ -13,11 +13,13 @@ const tabs = ["In Progress", "Completed", "Wishlist"];
 
 export default function MyLearning() {
   // 1. Fetch User Profile for Enrollment Data
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
   const { data: user, isLoading: loadingProfile } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
       return await getUserProfile();
-    }
+    },
+    enabled: !!userInfo.token
   });
 
   const { data: allCourses = [] } = useQuery({
@@ -119,7 +121,7 @@ export default function MyLearning() {
                     </div>
                     <div className="shrink-0 w-full md:w-auto">
                       <Link
-                        to={`/learning/${course._id}`}
+                        to={`/learn/${course._id}`}
                         className="w-full md:w-auto px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
                       >
                         <Play className="size-4" />

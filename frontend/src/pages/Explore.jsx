@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { MainLayout } from "@/components/MainLayout";
-import { CourseCard } from "@/components/CourseCard";
+import CourseCard from "@/components/CourseCard";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 // import { courses } from "@/data/courses";

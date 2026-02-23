@@ -2,9 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GraduationCap, LogIn } from "lucide-react";
 import loginHero from "@/assets/auth-login-hero.jpg";
-import axios from "axios";
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import axiosInstance from "../api/axiosInstance";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -21,9 +19,9 @@ const Login = () => {
     setError("");
 
     try {
-      console.log('🔐 Attempting login with:', { email, API_URL });
+      console.log('🔐 Attempting login with:', { email });
 
-      const response = await axios.post(`${API_URL}/auth/login`, {
+      const response = await axiosInstance.post('/auth/login', {
         email,
         password
       });

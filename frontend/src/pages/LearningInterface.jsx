@@ -54,12 +54,13 @@ export default function LearningInterface() {
     }
   });
 
-  // 3. Fetch User Progress
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
   const { data: progressData, isLoading: loadingProgress } = useQuery({
     queryKey: ['progress', id],
     queryFn: async () => {
       return await getUserProgress(id);
-    }
+    },
+    enabled: !!userInfo.token
   });
 
   const modules = course?.modules || [];
@@ -71,7 +72,7 @@ export default function LearningInterface() {
     if (modules.length > 0 && !activeLesson) {
       const firstLesson = modules[0].lessons[0];
       setActiveLesson(firstLesson);
-      setCurrentVideo(firstLesson.videoUrl);
+      setCurrentVideo(firstLesson.contentUrl);
     }
   }, [modules, activeLesson]);
 
@@ -143,7 +144,7 @@ export default function LearningInterface() {
     if (currentIndex !== -1 && currentIndex < allLessons.length - 1) {
       const nextLesson = allLessons[currentIndex + 1];
       setActiveLesson(nextLesson);
-      setCurrentVideo(nextLesson.videoUrl);
+      setCurrentVideo(nextLesson.contentUrl);
 
       // Also open the next module if it's closed
       const nextModuleIndex = modules.findIndex(m => m.lessons.some(l => l.title === nextLesson.title));
@@ -155,7 +156,7 @@ export default function LearningInterface() {
 
   const handleLessonClick = (lesson) => {
     setActiveLesson(lesson);
-    setCurrentVideo(lesson.videoUrl);
+    setCurrentVideo(lesson.contentUrl);
   };
 
   const handleLessonComplete = () => {

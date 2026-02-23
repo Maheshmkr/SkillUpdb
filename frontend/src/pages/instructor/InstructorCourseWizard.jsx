@@ -6,10 +6,12 @@ import {
     Award, Clock, Globe, DollarSign, Layout, ShieldCheck
 } from "lucide-react";
 import CurriculumBuilder from "@/components/CurriculumBuilder";
+import BadgeBuilder from "@/components/instructor/BadgeBuilder";
+import CertificateConfigForm from "@/components/instructor/CertificateConfigForm";
 import { initialCourseData } from "@/data/CourseDataModel";
 import { createCourse, updateCourse, getInstructorCourse, submitCourseForReview } from "@/api/courseApi";
 
-const steps = ["Basic Info", "Course Details", "Curriculum", "Preview & Submit"];
+const steps = ["Basic Info", "Course Details", "Curriculum", "Badges & Certificates", "Preview & Submit"];
 
 export default function InstructorCourseWizard() {
     const navigate = useNavigate();
@@ -22,7 +24,12 @@ export default function InstructorCourseWizard() {
         if (location.state?.courseData) {
             return location.state.courseData;
         }
-        return initialCourseData;
+        return {
+            ...initialCourseData,
+            badges: [],
+            certificateConfig: { enabled: true, criteria: 'all' },
+            gatingEnabled: true
+        };
     });
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
@@ -114,7 +121,7 @@ export default function InstructorCourseWizard() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
-        setCurrentStep((prev) => Math.min(prev + 1, 4));
+        setCurrentStep((prev) => Math.min(prev + 1, steps.length));
     };
     const prevStep = () => {
         setError("");
@@ -480,8 +487,31 @@ export default function InstructorCourseWizard() {
                         </div>
                     )}
 
-                    {/* STEP 4: Preview & Submit */}
+                    {/* STEP 4: Badges & Certificates */}
                     {currentStep === 4 && (
+                        <div className="max-w-4xl mx-auto space-y-12">
+                            <section>
+                                <BadgeBuilder
+                                    badges={courseData.badges || []}
+                                    setBadges={(badges) => updateField('badges', badges)}
+                                    modules={courseData.modules}
+                                    lessons={courseData.modules.flatMap(m => m.lessons)}
+                                />
+                            </section>
+                            <hr className="border-gray-100" />
+                            <section>
+                                <h3 className="text-xl font-bold text-gray-900 mb-6">Certificate Settings</h3>
+                                <CertificateConfigForm
+                                    config={courseData.certificateConfig || { enabled: true, criteria: 'all' }}
+                                    setConfig={(config) => updateField('certificateConfig', config)}
+                                    modules={courseData.modules}
+                                />
+                            </section>
+                        </div>
+                    )}
+
+                    {/* STEP 5: Preview & Submit */}
+                    {currentStep === 5 && (
                         <div className="max-w-4xl mx-auto text-center space-y-10 py-8">
                             <div className="space-y-2">
                                 <div className="size-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -494,7 +524,8 @@ export default function InstructorCourseWizard() {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                                <div className="bg-background border border-border p-6 rounded-xl hover:shadow-lg transition-all cursor-pointer group" onClick={() => handlePreview('before')}>
+                                <div className="bg-background border border-border p-6 rounded-xl hover:shadow-lg transition-all cursor-pointer group"
+                                    onClick={() => window.open(`/instructor/courses/${courseId || 'new'}/preview/before`, '_blank')}>
                                     <div className="h-40 bg-secondary rounded-lg mb-4 flex items-center justify-center group-hover:bg-primary/5 transition-colors">
                                         <Layout className="size-12 text-muted-foreground group-hover:text-primary" />
                                     </div>
@@ -503,7 +534,8 @@ export default function InstructorCourseWizard() {
                                     <button className="mt-4 text-primary font-bold text-sm underline">Preview Landing Page</button>
                                 </div>
 
-                                <div className="bg-background border border-border p-6 rounded-xl hover:shadow-lg transition-all cursor-pointer group" onClick={() => handlePreview('after')}>
+                                <div className="bg-background border border-border p-6 rounded-xl hover:shadow-lg transition-all cursor-pointer group"
+                                    onClick={() => window.open(`/instructor/courses/${courseId || 'new'}/preview/after`, '_blank')}>
                                     <div className="h-40 bg-secondary rounded-lg mb-4 flex items-center justify-center group-hover:bg-primary/5 transition-colors">
                                         <Play className="size-12 text-muted-foreground group-hover:text-primary" />
                                     </div>

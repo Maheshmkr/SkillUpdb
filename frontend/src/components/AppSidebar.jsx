@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GraduationCap, Compass, CirclePlay, Users, Bookmark, LayoutDashboard, User, LogOut } from "lucide-react";
 
 const mainNav = [
@@ -10,6 +10,14 @@ const mainNav = [
 
 export function AppSidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = (e) => {
+    e.preventDefault();
+    console.log('🚪 Logging out...');
+    localStorage.removeItem('userInfo');
+    navigate('/login');
+  };
 
   return (
     <aside className="fixed inset-y-0 left-0 z-50 w-72 bg-card border-r border-border flex-col hidden md:flex">
@@ -59,9 +67,12 @@ export function AppSidebar() {
             <p className="text-sm font-bold truncate">Alex Morgan</p>
             <p className="text-[10px] text-muted-foreground truncate">Premium Student</p>
           </div>
-          <Link to="/login" className="text-muted-foreground hover:text-primary">
+          <button
+            onClick={handleLogout}
+            className="text-muted-foreground hover:text-primary transition-colors"
+          >
             <LogOut className="size-5" />
-          </Link>
+          </button>
         </div>
       </div>
     </aside>

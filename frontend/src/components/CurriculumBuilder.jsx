@@ -105,7 +105,7 @@ const CurriculumBuilder = ({ modules, setModules }) => {
     const addQuestion = (moduleId, lessonId) => {
         const newQuestion = {
             id: generateId('q'),
-            text: "New Question",
+            question: "New Question",
             options: ["Option 1", "Option 2"],
             correctAnswer: 0 // Index of correct option
         };
@@ -272,13 +272,25 @@ const CurriculumBuilder = ({ modules, setModules }) => {
         <div className="space-y-6">
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-bold">Course Curriculum</h3>
-                <button
-                    onClick={addModule}
-                    className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90"
-                    type="button"
-                >
-                    <Plus className="size-4" /> Add Section
-                </button>
+                <div className="flex items-center gap-6">
+                    <label className="flex items-center gap-2 cursor-pointer group">
+                        <div className={`w-10 h-5 rounded-full relative transition-all ${modules.some(m => m.gatingEnabled) ? 'bg-primary' : 'bg-gray-300'}`}
+                            onClick={() => {
+                                const anyGated = modules.some(m => m.gatingEnabled);
+                                setModules(modules.map(m => ({ ...m, gatingEnabled: !anyGated })));
+                            }}>
+                            <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${modules.some(m => m.gatingEnabled) ? 'left-5.5' : 'left-0.5'}`} />
+                        </div>
+                        <span className="text-sm font-bold text-gray-700">Quiz Gating</span>
+                    </label>
+                    <button
+                        onClick={addModule}
+                        className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90"
+                        type="button"
+                    >
+                        <Plus className="size-4" /> Add Section
+                    </button>
+                </div>
             </div>
 
             <div className="space-y-4">
@@ -318,6 +330,17 @@ const CurriculumBuilder = ({ modules, setModules }) => {
                             </div>
 
                             <div className="flex items-center gap-4">
+                                <label className="flex items-center gap-1.5 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={module.gatingEnabled}
+                                        onChange={(e) => {
+                                            setModules(modules.map(m => m.id === module.id ? { ...m, gatingEnabled: e.target.checked } : m));
+                                        }}
+                                        className="rounded text-primary"
+                                    />
+                                    <span className="text-[10px] font-bold uppercase text-muted-foreground">Gating</span>
+                                </label>
                                 <span className="text-xs text-muted-foreground font-medium hidden sm:inline-block">{module.lessons.length} lessons</span>
                                 <button onClick={() => deleteModule(module.id)} type="button" className="text-muted-foreground hover:text-destructive transition-colors">
                                     <Trash className="size-4" />
@@ -413,38 +436,86 @@ const CurriculumBuilder = ({ modules, setModules }) => {
                                         {/* Lesson Bottom Row: File Upload & Description (Only for non-quiz) */}
                                         {lesson.type !== 'quiz' && (
                                             <div className="pl-11 pr-2 space-y-3">
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-center gap-2 text-xs text-muted-foreground bg-secondary/30 px-2 py-1 rounded">
-                                                        <FileText className="size-3" />
-                                                        {lesson.file ? (
-                                                            <span className="text-foreground font-medium truncate max-w-[200px]">{lesson.file.name}</span>
-                                                        ) : (
-                                                            <span>No content file selected</span>
+                                                <div className="flex items-center justify-between gap-4">
+                                                    <div className="flex flex-col gap-2 flex-1">
+                                                        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-secondary/30 px-2 py-1 rounded">
+                                                            <FileText className="size-3" />
+                                                            {lesson.file ? (
+                                                                <span className="text-foreground font-medium truncate max-w-[200px]">{lesson.file.name}</span>
+                                                            ) : (
+                                                                <span>No content file selected</span>
+                                                            )}
+                                                        </div>
+                                                        {lesson.type === 'video' && (
+                                                            <div className="flex flex-col gap-1">
+                                                                <label className="text-[10px] uppercase font-bold text-muted-foreground">Video / Embed URL</label>
+                                                                <input
+                                                                    className="w-full text-xs p-1.5 border border-border rounded bg-background focus:outline-none focus:border-primary"
+                                                                    placeholder="Enter YouTube/Vimeo URL..."
+                                                                    value={lesson.contentUrl || ""}
+                                                                    onChange={(e) => {
+                                                                        const url = e.target.value;
+                                                                        setModules(modules.map(m => {
+                                                                            if (m.id === module.id) {
+                                                                                return {
+                                                                                    ...m,
+                                                                                    lessons: m.lessons.map(l => l.id === lesson.id ? { ...l, contentUrl: url, file: null } : l)
+                                                                                };
+                                                                            }
+                                                                            return m;
+                                                                        }));
+                                                                    }}
+                                                                />
+                                                            </div>
                                                         )}
                                                     </div>
-                                                    <label className="cursor-pointer text-xs font-bold text-primary hover:underline flex items-center gap-1">
-                                                        <Upload className="size-3" />
-                                                        {lesson.file ? "Change File" : "Upload File"}
-                                                        <input
-                                                            type="file"
-                                                            className="hidden"
-                                                            accept={lesson.type === 'video' ? "video/*" : "*"}
-                                                            onChange={(e) => {
-                                                                const file = e.target.files[0];
-                                                                if (file) {
-                                                                    const contentUrl = URL.createObjectURL(file);
+                                                    <div className="flex flex-col gap-1 shrink-0">
+                                                        <label className="cursor-pointer text-xs font-bold text-primary hover:underline flex items-center gap-1">
+                                                            <Upload className="size-3" />
+                                                            {lesson.file ? "Change File" : "Upload File"}
+                                                            <input
+                                                                type="file"
+                                                                className="hidden"
+                                                                accept={lesson.type === 'video' ? "video/*" : "*"}
+                                                                onChange={(e) => {
+                                                                    const file = e.target.files[0];
+                                                                    if (file) {
+                                                                        const contentUrl = URL.createObjectURL(file);
 
-                                                                    // Auto-calculate duration if it's a video
-                                                                    if (lesson.type === 'video') {
-                                                                        const video = document.createElement('video');
-                                                                        video.preload = 'metadata';
-                                                                        video.onloadedmetadata = () => {
-                                                                            window.URL.revokeObjectURL(video.src);
-                                                                            const duration = video.duration;
-                                                                            const minutes = Math.floor(duration / 60);
-                                                                            const seconds = Math.floor(duration % 60);
-                                                                            const durationStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                                                                        // Auto-calculate duration if it's a video
+                                                                        if (lesson.type === 'video') {
+                                                                            const video = document.createElement('video');
+                                                                            video.preload = 'metadata';
+                                                                            video.onloadedmetadata = () => {
+                                                                                window.URL.revokeObjectURL(video.src);
+                                                                                const duration = video.duration;
+                                                                                const minutes = Math.floor(duration / 60);
+                                                                                const seconds = Math.floor(duration % 60);
+                                                                                const durationStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
+                                                                                const fileMeta = {
+                                                                                    name: file.name,
+                                                                                    size: file.size,
+                                                                                    fileType: file.type
+                                                                                };
+
+                                                                                setModules(modules.map(m => {
+                                                                                    if (m.id === module.id) {
+                                                                                        return {
+                                                                                            ...m,
+                                                                                            lessons: m.lessons.map(l => l.id === lesson.id ? {
+                                                                                                ...l,
+                                                                                                file: fileMeta,
+                                                                                                contentUrl: contentUrl,
+                                                                                                duration: durationStr
+                                                                                            } : l)
+                                                                                        };
+                                                                                    }
+                                                                                    return m;
+                                                                                }));
+                                                                            };
+                                                                            video.src = contentUrl;
+                                                                        } else {
                                                                             const fileMeta = {
                                                                                 name: file.name,
                                                                                 size: file.size,
@@ -458,40 +529,18 @@ const CurriculumBuilder = ({ modules, setModules }) => {
                                                                                         lessons: m.lessons.map(l => l.id === lesson.id ? {
                                                                                             ...l,
                                                                                             file: fileMeta,
-                                                                                            contentUrl: contentUrl,
-                                                                                            duration: durationStr
+                                                                                            contentUrl: contentUrl
                                                                                         } : l)
                                                                                     };
                                                                                 }
                                                                                 return m;
                                                                             }));
-                                                                        };
-                                                                        video.src = contentUrl;
-                                                                    } else {
-                                                                        const fileMeta = {
-                                                                            name: file.name,
-                                                                            size: file.size,
-                                                                            fileType: file.type
-                                                                        };
-
-                                                                        setModules(modules.map(m => {
-                                                                            if (m.id === module.id) {
-                                                                                return {
-                                                                                    ...m,
-                                                                                    lessons: m.lessons.map(l => l.id === lesson.id ? {
-                                                                                        ...l,
-                                                                                        file: fileMeta,
-                                                                                        contentUrl: contentUrl
-                                                                                    } : l)
-                                                                                };
-                                                                            }
-                                                                            return m;
-                                                                        }));
+                                                                        }
                                                                     }
-                                                                }
-                                                            }}
-                                                        />
-                                                    </label>
+                                                                }}
+                                                            />
+                                                        </label>
+                                                    </div>
                                                 </div>
 
                                                 {/* Description Field */}
@@ -519,7 +568,27 @@ const CurriculumBuilder = ({ modules, setModules }) => {
                                         {/* Quiz Builder UI */}
                                         {lesson.type === 'quiz' && expandedQuizzes[lesson.id] && (
                                             <div className="ml-11 mt-2 p-4 bg-secondary/10 border border-border rounded-lg space-y-4">
-                                                <h5 className="font-bold text-sm flex items-center gap-2"><HelpCircle className="size-4" /> Quiz Questions</h5>
+                                                <div className="flex items-center justify-between">
+                                                    <h5 className="font-bold text-sm flex items-center gap-2"><HelpCircle className="size-4" /> Quiz Questions</h5>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-[10px] font-bold text-muted-foreground uppercase">Passing Score:</span>
+                                                        <input
+                                                            type="number"
+                                                            className="w-12 text-[10px] p-1 border border-border rounded text-center font-bold"
+                                                            value={lesson.minScore || 80}
+                                                            onChange={(e) => {
+                                                                const val = parseInt(e.target.value);
+                                                                setModules(modules.map(m => {
+                                                                    if (m.id === module.id) {
+                                                                        return { ...m, lessons: m.lessons.map(l => l.id === lesson.id ? { ...l, minScore: val } : l) };
+                                                                    }
+                                                                    return m;
+                                                                }));
+                                                            }}
+                                                        />
+                                                        <span className="text-[10px] font-bold text-muted-foreground">%</span>
+                                                    </div>
+                                                </div>
 
                                                 {(!lesson.questions || lesson.questions.length === 0) && (
                                                     <p className="text-xs text-muted-foreground">No questions yet.</p>
@@ -532,8 +601,8 @@ const CurriculumBuilder = ({ modules, setModules }) => {
                                                             <div className="flex-1 space-y-2">
                                                                 <input
                                                                     className="w-full text-sm font-medium border-b border-border bg-transparent outline-none py-1 focus:border-primary"
-                                                                    value={question.text}
-                                                                    onChange={(e) => updateQuestion(module.id, lesson.id, question.id, 'text', e.target.value)}
+                                                                    value={question.question}
+                                                                    onChange={(e) => updateQuestion(module.id, lesson.id, question.id, 'question', e.target.value)}
                                                                     placeholder="Enter question text..."
                                                                 />
 

@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import axiosInstance from "@/api/axiosInstance";
 import profileAvatar from "@/assets/profile-avatar.jpg";
 import certUiux from "@/assets/cert-uiux.jpg";
 
@@ -22,7 +22,7 @@ export default function Profile() {
   const { data: courses = [] } = useQuery({
     queryKey: ['courses'],
     queryFn: async () => {
-      const { data } = await axios.get('/api/courses');
+      const { data } = await axiosInstance.get('/courses');
       return data;
     }
   });
@@ -31,7 +31,7 @@ export default function Profile() {
     queryKey: ['profile'],
     queryFn: async () => {
       try {
-        const { data } = await axios.get('/api/users/profile');
+        const { data } = await axiosInstance.get('/users/profile');
         return data;
       } catch (err) {
         return {
@@ -184,7 +184,7 @@ export default function Profile() {
               {userCertificates.length > 0 ? userCertificates.map((cert, idx) => (
                 <div key={idx} className="group bg-card rounded-xl border border-border overflow-hidden hover:shadow-md transition-all">
                   <div className="relative aspect-video overflow-hidden">
-                    <img src={cert.course.image} alt={cert.course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img src={cert.course.thumbnail || cert.course.image || "/assets/course-placeholder.jpg"} alt={cert.course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <Download className="size-8 text-white" />
                     </div>

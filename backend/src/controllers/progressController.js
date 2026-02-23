@@ -6,7 +6,7 @@ const Course = require('../models/Course');
 // @route   PUT /api/users/progress
 // @access  Private
 const updateProgress = asyncHandler(async (req, res) => {
-    const { courseId, lessonTitle } = req.body;
+    const { courseId, lessonId } = req.body;
     const userId = req.user._id;
 
     const user = await User.findById(userId);
@@ -37,8 +37,8 @@ const updateProgress = asyncHandler(async (req, res) => {
     );
 
     // Update completed lessons if not already completed
-    if (lessonTitle && !enrollment.completedLessons.includes(lessonTitle)) {
-        enrollment.completedLessons.push(lessonTitle);
+    if (lessonId && !enrollment.completedLessons.includes(lessonId)) {
+        enrollment.completedLessons.push(lessonId);
     }
 
     // Calculate progress

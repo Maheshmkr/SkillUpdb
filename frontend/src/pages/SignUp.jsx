@@ -1,7 +1,4 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, GraduationCap } from "lucide-react";
-import authHero from "@/assets/auth-signup-hero.jpg";
+import axiosInstance from "../api/axiosInstance";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -9,11 +6,43 @@ const SignUp = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "" });
   const [agreed, setAgreed] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // placeholder – navigate to explore on submit
-    navigate("/");
+    setLoading(true);
+    setError("");
+
+    if (form.password !== form.confirm) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+
+    if (!agreed) {
+      setError("Please agree to the Terms and Conditions");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      console.log('📝 Attempting registration for:', form.email);
+      const response = await axiosInstance.post('/auth/register', {
+        name: form.name,
+        email: form.email,
+        password: form.password
+      });
+
+      console.log('✅ Registration successful:', response.data);
+      localStorage.setItem('userInfo', JSON.stringify(response.data));
+      navigate("/");
+    } catch (err) {
+      console.error('❌ Registration failed:', err.response?.data || err.message);
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -133,9 +162,18 @@ const SignUp = () => {
                 </button>
               </div>
             </div>
+            {error && (
+              <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-xl text-sm mb-4">
+                {error}
+              </div>
+            )}
             <div className="pt-2">
-              <button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3.5 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]">
-                Create Account
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3.5 rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98] disabled:opacity-50"
+              >
+                {loading ? 'Creating Account...' : 'Create Account'}
               </button>
             </div>
             <div className="flex items-start gap-3 text-xs text-muted-foreground mt-6 leading-relaxed">

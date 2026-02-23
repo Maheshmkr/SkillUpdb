@@ -4,7 +4,7 @@ const courses = [
         title: "Mastering UI/UX: Design Modern Interfaces",
         instructor: "Sarah Jenkins",
         category: "Design",
-        hours: 12.5,
+        hours: 15.5,
         rating: 4.9,
         reviews: 12430,
         price: 84.99,
@@ -13,21 +13,99 @@ const courses = [
         image: "/assets/course-uiux.jpg",
         badge: "Bestseller",
         badgeColor: "bg-primary",
+        status: "Published",
         modules: [
             {
+                id: "mod1",
                 title: "Module 1: Introduction to UI/UX",
                 lessons: [
-                    { title: "1.1 Welcome to the Course", duration: "05:00", videoUrl: "https://www.youtube.com/embed/c9Wg6Cb_YlU?enablejsapi=1", type: "Video" },
-                    { title: "1.2 What is UI vs UX?", duration: "10:30", videoUrl: "https://www.youtube.com/embed/zHAa-m16NGk?enablejsapi=1", type: "Video" },
-                    { title: "1.3 Design Thinking Process", duration: "15:00", videoUrl: "https://www.youtube.com/embed/_r0VX-aU_T8?enablejsapi=1", type: "Video" }
+                    {
+                        id: "l1_1",
+                        title: "1.1 Welcome to the Course",
+                        duration: "05:00",
+                        contentUrl: "https://www.youtube.com/embed/c9Wg6Cb_YlU?enablejsapi=1",
+                        type: "video",
+                        description: "An overview of what we will cover in this course and how to get the most out of it."
+                    },
+                    {
+                        id: "l1_2",
+                        title: "1.2 What is UI vs UX?",
+                        duration: "10:30",
+                        contentUrl: "https://www.youtube.com/embed/zHAa-m16NGk?enablejsapi=1",
+                        type: "video",
+                        description: "Understanding the fundamental differences and intersection between User Interface and User Experience."
+                    },
+                    {
+                        id: "l1_3",
+                        title: "1.3 Design Thinking Process",
+                        duration: "15:00",
+                        contentUrl: "https://www.youtube.com/embed/_r0VX-aU_T8?enablejsapi=1",
+                        type: "video",
+                        description: "A step-by-step look at the design thinking process: Empathize, Define, Ideate, Prototype, and Test."
+                    }
                 ]
             },
             {
+                id: "mod2",
                 title: "Module 2: Visual Design Basics",
                 lessons: [
-                    { title: "2.1 Typography Essentials", duration: "12:00", videoUrl: "https://www.youtube.com/embed/sByzHoiYFX0?enablejsapi=1", type: "Video" },
-                    { title: "2.2 Color Theory", duration: "14:20", videoUrl: "https://www.youtube.com/embed/9lH-0_88-7g?enablejsapi=1", type: "Video" },
-                    { title: "2.3 Layout & Grid Systems", duration: "18:45", videoUrl: "https://www.youtube.com/embed/9lH-0_88-7g?enablejsapi=1", type: "Video" }
+                    {
+                        id: "l2_1",
+                        title: "2.1 Typography Essentials",
+                        duration: "12:00",
+                        contentUrl: "https://www.youtube.com/embed/sByzHoiYFX0?enablejsapi=1",
+                        type: "video",
+                        description: "How to choose and pair fonts to create readable and aesthetically pleasing designs."
+                    },
+                    {
+                        id: "l2_2",
+                        title: "2.2 Color Theory",
+                        duration: "14:20",
+                        contentUrl: "https://www.youtube.com/embed/9lH-0_88-7g?enablejsapi=1",
+                        type: "video",
+                        description: "Understanding color psychology, harmony, and how to create effective color palettes."
+                    },
+                    {
+                        id: "l2_3",
+                        title: "2.3 Reading: Design Principles",
+                        duration: "15:00",
+                        contentUrl: "https://www.interaction-design.org/literature/topics/design-principles",
+                        type: "article",
+                        description: "Deep dive into the 6 fundamental principles of design."
+                    }
+                ]
+            },
+            {
+                id: "mod3",
+                title: "Module 3: Prototyping & Testing",
+                lessons: [
+                    {
+                        id: "l3_1",
+                        title: "3.1 Prototyping in Figma",
+                        duration: "20:00",
+                        contentUrl: "https://www.youtube.com/embed/cbLSfS6p-sE?enablejsapi=1",
+                        type: "video",
+                        description: "Learning how to create interactive prototypes that feel like the real thing."
+                    },
+                    {
+                        id: "l3_2",
+                        title: "3.2 Quiz: Testing Your Knowledge",
+                        type: "quiz",
+                        questions: [
+                            {
+                                id: "q1",
+                                question: "What does UX stand for?",
+                                options: ["Universal Experience", "User Experience", "User Exit", "Unit Experience"],
+                                correctAnswer: 1
+                            },
+                            {
+                                id: "q2",
+                                question: "Which tool is most commonly used for modern UI design?",
+                                options: ["Photoshop", "Excel", "Figma", "Word"],
+                                correctAnswer: 2
+                            }
+                        ]
+                    }
                 ]
             }
         ]
@@ -46,6 +124,7 @@ const courses = [
         image: "/assets/course-react.jpg",
         badge: "Intermediate",
         badgeColor: "bg-foreground",
+        status: "Published",
     },
     {
         id: "3",
@@ -58,6 +137,7 @@ const courses = [
         price: 49.99,
         description: "Master the latest digital marketing trends, from SEO to social media advertising strategies.",
         image: "/assets/course-marketing.jpg",
+        status: "Published",
     },
     {
         id: "4",
@@ -73,6 +153,7 @@ const courses = [
         image: "/assets/course-datascience.jpg",
         badge: "New",
         badgeColor: "bg-success",
+        status: "Published",
     },
     {
         id: "5",
@@ -85,6 +166,7 @@ const courses = [
         price: 64.99,
         description: "Learn to manage projects using Agile and Scrum methodologies for faster delivery and better quality.",
         image: "/assets/course-business.jpg",
+        status: "Published",
     },
     {
         id: "6",
@@ -99,6 +181,7 @@ const courses = [
         image: "/assets/course-copywriting.jpg",
         badge: "Popular",
         badgeColor: "bg-primary",
+        status: "Published",
     },
     {
         id: "7",
@@ -111,6 +194,7 @@ const courses = [
         price: 124.99,
         description: "Build strong brand identities from scratch. Learn logo design, typography, and color theory.",
         image: "/assets/course-branding.jpg",
+        status: "Published",
     },
     {
         id: "8",
@@ -123,6 +207,7 @@ const courses = [
         price: 89.99,
         description: "Protect your digital assets. Learn about network security, encryption, and threat analysis.",
         image: "/assets/course-security.jpg",
+        status: "Published",
     }
 ];
 

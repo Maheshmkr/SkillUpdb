@@ -88,7 +88,7 @@ export default function EnrollmentSuccess() {
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3 min-w-max">
                   <Link
-                    to={`/learning/${courseId}`}
+                    to={`/learn/${courseId}`}
                     className="flex items-center justify-center rounded-lg h-12 px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-bold transition-all shadow-md active:scale-95"
                   >
                     Start Learning
