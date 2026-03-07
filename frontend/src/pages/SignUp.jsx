@@ -1,3 +1,7 @@
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Compass, Eye, EyeOff, GraduationCap } from "lucide-react";
+import authHero from "@/assets/auth-signup-hero.jpg";
 import axiosInstance from "../api/axiosInstance";
 
 const SignUp = () => {
@@ -75,9 +79,9 @@ const SignUp = () => {
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-2 mb-8">
             <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <GraduationCap className="w-5 h-5 text-primary-foreground" />
+              <Compass className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="text-2xl font-bold text-foreground">EduDiscover</span>
+            <span className="text-2xl font-bold text-foreground">SkillUp</span>
           </div>
 
           <div className="mb-10">

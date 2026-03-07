@@ -7,7 +7,7 @@ import axios from "axios";
 import {
   Star, Users, Clock, ChevronRight, ChevronDown, ChevronUp,
   CirclePlay, FileText, CircleCheck, Monitor, Download, Infinity,
-  Smartphone, Award, Share2, Bookmark, Play
+  Smartphone, Award, Share2, Bookmark, Play, MessageSquare
 } from "lucide-react";
 import courseVideoBg from "@/assets/course-video-bg.jpg";
 import { getCourseById } from "@/api/courseApi";
@@ -54,7 +54,7 @@ export default function CourseDetail() {
   });
 
   const [activeTab, setActiveTab] = useState("Overview");
-  const [module2Open, setModule2Open] = useState(true);
+  const [expandedModules, setExpandedModules] = useState({ 0: true });
 
   if (isLoading) return <div className="p-10 text-center">Loading course details...</div>;
   if (error) return <div className="p-10 text-center text-red-500">Error loading course</div>;
@@ -105,7 +105,7 @@ export default function CourseDetail() {
             <div className="relative group aspect-video rounded-2xl overflow-hidden bg-foreground shadow-2xl mb-12 border border-border">
               <div
                 className="absolute inset-0 bg-cover bg-center opacity-60 group-hover:scale-105 transition-transform duration-700"
-                style={{ backgroundImage: `url(${course.image})` }}
+                style={{ backgroundImage: `url(${course.thumbnail})` }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 to-transparent" />
               <button className="absolute inset-0 flex items-center justify-center">
@@ -137,99 +137,172 @@ export default function CourseDetail() {
               </div>
             </div>
 
-            {/* What you'll learn */}
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold mb-6">What you'll learn</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-card p-8 rounded-2xl border border-border shadow-sm">
-                {learningPoints.map((point, i) => (
-                  <div key={i} className="flex gap-3">
-                    <CircleCheck className="size-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-muted-foreground">{point}</span>
+            {/* Tab Content */}
+            <div className="min-h-[400px]">
+              {activeTab === "Overview" && (
+                <section className="mb-12 animate-in fade-in duration-500">
+                  <h2 className="text-2xl font-bold mb-6">What you'll learn</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-card p-8 rounded-2xl border border-border shadow-sm">
+                    {(course.whatYouWillLearn || learningPoints).map((point, i) => (
+                      <div key={i} className="flex gap-3">
+                        <CircleCheck className="size-5 text-primary shrink-0 mt-0.5" />
+                        <span className="text-muted-foreground">{point}</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </section>
 
-            {/* Course Content */}
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold mb-6">Course Content</h2>
-              <div className="space-y-3">
-                <div className="border border-border rounded-xl overflow-hidden">
-                  <div className="bg-secondary/50 p-4 flex justify-between items-center cursor-pointer">
-                    <div className="flex items-center gap-3">
-                      <ChevronDown className="size-5 text-muted-foreground" />
-                      <span className="font-bold">Module 1: Foundations of Product Thinking</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">4 lectures • 45m</span>
-                  </div>
-                </div>
-                <div className="border border-border rounded-xl overflow-hidden">
-                  <div
-                    onClick={() => setModule2Open(!module2Open)}
-                    className="bg-secondary/50 p-4 flex justify-between items-center cursor-pointer border-b border-border"
-                  >
-                    <div className="flex items-center gap-3">
-                      {module2Open ? <ChevronUp className="size-5 text-primary" /> : <ChevronDown className="size-5 text-muted-foreground" />}
-                      <span className="font-bold">Module 2: Advanced Interaction Systems</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">8 lectures • 2h 15m</span>
-                  </div>
-                  {module2Open && (
-                    <div>
-                      <div className="flex items-center justify-between p-4 hover:bg-secondary/30">
-                        <div className="flex items-center gap-3">
-                          <CirclePlay className="size-5 text-muted-foreground" />
-                          <span className="text-sm">Complex State Management in UI</span>
-                        </div>
-                        <span className="text-xs text-muted-foreground">12:40</span>
-                      </div>
-                      <div className="flex items-center justify-between p-4 hover:bg-secondary/30">
-                        <div className="flex items-center gap-3">
-                          <FileText className="size-5 text-muted-foreground" />
-                          <span className="text-sm">Case Study: Enterprise Dashboard Architecture</span>
-                        </div>
-                        <span className="text-xs text-muted-foreground">PDF Guide</span>
-                      </div>
+                  {course.description && (
+                    <div className="mt-10 prose prose-slate max-w-none">
+                      <h2 className="text-2xl font-bold mb-4 text-foreground">Description</h2>
+                      <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                        {course.description}
+                      </p>
                     </div>
                   )}
-                </div>
-              </div>
-              <button className="mt-4 text-primary font-bold text-sm hover:underline">Show all 12 modules</button>
-            </section>
+                </section>
+              )}
 
-            {/* About Instructor */}
-            <section className="pb-20">
-              <h2 className="text-2xl font-bold mb-6">About the Instructor</h2>
-              <div className="flex flex-col md:flex-row gap-6">
-                <div className="shrink-0">
-                  <div className="w-32 h-32 rounded-2xl overflow-hidden bg-secondary flex items-center justify-center text-primary font-bold text-3xl">
-                    MT
+              {activeTab === "Syllabus" && (
+                <section className="mb-12 animate-in fade-in duration-500">
+                  <h2 className="text-2xl font-bold mb-6">Course Content</h2>
+                  <div className="space-y-3">
+                    {(course.modules || []).map((module, idx) => (
+                      <div key={module._id || idx} className="border border-border rounded-xl overflow-hidden">
+                        <div
+                          onClick={() => setExpandedModules(prev => ({ ...prev, [idx]: !prev[idx] }))}
+                          className="bg-secondary/50 p-4 flex justify-between items-center cursor-pointer border-b border-border"
+                        >
+                          <div className="flex items-center gap-3">
+                            {expandedModules[idx] ? <ChevronUp className="size-5 text-primary" /> : <ChevronDown className="size-5 text-muted-foreground" />}
+                            <span className="font-bold">{module.title}</span>
+                          </div>
+                          <span className="text-sm text-muted-foreground">{module.lessons?.length || 0} lectures</span>
+                        </div>
+                        {expandedModules[idx] && (
+                          <div className="divide-y divide-border/10">
+                            {(module.lessons || []).map((lesson, lidx) => (
+                              <div key={lesson._id || lidx} className="flex items-center justify-between p-4 hover:bg-secondary/30 transition-colors">
+                                <div className="flex items-center gap-3">
+                                  {lesson.type === 'video' ? <CirclePlay className="size-5 text-primary/60" /> :
+                                    lesson.type === 'quiz' ? <CircleCheck className="size-5 text-success/60" /> :
+                                      <FileText className="size-5 text-muted-foreground" />}
+                                  <span className="text-sm">{lesson.title}</span>
+                                </div>
+                                <span className="text-xs text-muted-foreground">{lesson.duration || (lesson.type === 'quiz' ? 'Quiz' : 'Reading')}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-primary mb-1">{course.instructor}</h3>
-                  <p className="text-muted-foreground mb-4 font-medium uppercase tracking-wider text-xs">
-                    Expert Instructor in {course.category}
-                  </p>
-                  <div className="flex gap-4 mb-4 text-sm font-bold">
-                    <div className="flex items-center gap-1">
-                      <Star className="size-4 text-warning fill-warning" />
-                      <span>{course.rating} Instructor Rating</span>
+                </section>
+              )}
+
+              {activeTab === "Reviews" && (
+                <section className="mb-12 animate-in fade-in duration-500">
+                  <h2 className="text-2xl font-bold mb-6 text-foreground">Student Feedback</h2>
+                  <div className="flex flex-col md:flex-row gap-8 mb-10">
+                    <div className="flex flex-col items-center justify-center p-8 bg-card border border-border rounded-2xl w-full md:w-48">
+                      <span className="text-5xl font-black text-primary mb-2">{course.rating}</span>
+                      <div className="flex text-warning mb-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} size={16} className={i < Math.floor(course.rating) ? "fill-current" : ""} />
+                        ))}
+                      </div>
+                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Course Rating</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Award className="size-4 text-primary" />
-                      <span>156,000+ Students</span>
+                    <div className="flex-1 space-y-3 justify-center flex flex-col">
+                      {[5, 4, 3, 2, 1].map((rating) => {
+                        const count = course.reviewList?.filter(r => Math.floor(r.rating) === rating).length || 0;
+                        const percentage = course.reviewList?.length > 0 ? (count / course.reviewList.length) * 100 : 0;
+                        return (
+                          <div key={rating} className="flex items-center gap-4">
+                            <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
+                              <div className="bg-warning h-full" style={{ width: `${percentage}%` }} />
+                            </div>
+                            <div className="flex items-center gap-1 min-w-[60px]">
+                              {[...Array(5)].map((_, i) => (
+                                <Star key={i} size={10} className={i < rating ? "text-warning fill-current" : "text-muted-foreground"} />
+                              ))}
+                            </div>
+                            <span className="text-xs font-bold text-muted-foreground w-8">{Math.round(percentage)}%</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
-                  <p className="text-muted-foreground leading-relaxed mb-4">
-                    Marcus is a design veteran with over 15 years of experience leading UI/UX teams at Fortune 500 companies. He focuses on bridging the gap between aesthetic beauty and functional business requirements.
-                  </p>
-                  <button className="px-6 py-2 border border-border rounded-xl text-sm font-bold hover:bg-secondary transition-colors">
-                    View Profile
-                  </button>
-                </div>
-              </div>
-            </section>
+
+                  <div className="space-y-6">
+                    {course.reviewList && course.reviewList.length > 0 ? (
+                      course.reviewList.map((review, idx) => (
+                        <div key={idx} className="p-6 bg-card border border-border rounded-2xl shadow-sm">
+                          <div className="flex items-center gap-4 mb-4">
+                            <div className="size-12 rounded-full bg-accent flex items-center justify-center font-bold text-accent-foreground border border-border">
+                              {review.avatar ? <img src={review.avatar} alt="" className="w-full h-full rounded-full object-cover" /> : (review.name?.substring(0, 2).toUpperCase() || "ST")}
+                            </div>
+                            <div>
+                              <p className="font-bold">{review.name}</p>
+                              <div className="flex items-center gap-2">
+                                <div className="flex text-warning">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star key={i} size={12} className={i < review.rating ? "fill-current" : ""} />
+                                  ))}
+                                </div>
+                                <span className="text-xs text-muted-foreground font-medium">
+                                  {new Date(review.date).toLocaleDateString()}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <p className="text-muted-foreground leading-relaxed italic">"{review.comment}"</p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-12 bg-secondary/20 rounded-2xl border border-dashed border-border px-6">
+                        <MessageSquare className="size-10 text-muted-foreground mx-auto mb-4 opacity-20" />
+                        <p className="text-muted-foreground font-medium">No reviews yet for this course. Be the first to share your experience!</p>
+                      </div>
+                    )}
+                  </div>
+                </section>
+              )}
+
+              {activeTab === "Instructor" && (
+                <section className="pb-20 animate-in fade-in duration-500">
+                  <h2 className="text-2xl font-bold mb-6">About the Instructor</h2>
+                  <div className="flex flex-col md:flex-row gap-8 bg-card border border-border p-8 rounded-2xl shadow-sm">
+                    <div className="shrink-0 flex flex-col items-center">
+                      <div className="w-32 h-32 rounded-2xl overflow-hidden bg-secondary flex items-center justify-center text-primary font-bold text-3xl mb-4 border-2 border-primary/10 shadow-inner">
+                        {course.instructor?.substring(0, 2).toUpperCase() || "MT"}
+                      </div>
+                      <div className="space-y-2 w-full">
+                        <div className="flex items-center gap-2 text-sm font-bold bg-secondary/50 px-3 py-2 rounded-lg justify-center">
+                          <Star size={14} className="text-warning fill-current" />
+                          <span>{course.rating} Rating</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm font-bold bg-secondary/50 px-3 py-2 rounded-lg justify-center">
+                          <Users size={14} className="text-primary" />
+                          <span>45k+ Students</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-2xl font-bold text-primary mb-1">{course.instructor}</h3>
+                      <p className="text-muted-foreground mb-6 font-bold uppercase tracking-widest text-xs opacity-70">
+                        Expert Instructor in {course.category}
+                      </p>
+                      <p className="text-muted-foreground leading-relaxed mb-6 text-lg italic">
+                        "I believe that anyone can learn complex technical skills if they are explained with passion and clarity. My goal is to empower the next generation of digital creators through high-quality, practical education."
+                      </p>
+                      <button className="px-8 py-3 bg-primary text-primary-foreground rounded-xl text-sm font-black hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
+                        View Instructor Profile
+                      </button>
+                    </div>
+                  </div>
+                </section>
+              )}
+            </div>
           </div>
 
           {/* Right Sidebar - Pricing */}
@@ -251,7 +324,7 @@ export default function CourseDetail() {
                   <div className="space-y-3 mb-6">
                     {isEnrolled ? (
                       <Link
-                        to={`/learning/${id}`}
+                        to={`/learn/${id}`}
                         className="w-full py-4 bg-success text-white font-extrabold text-lg rounded-xl hover:bg-success/90 transition-all shadow-lg shadow-success/20 block text-center"
                       >
                         Go to Course
@@ -273,24 +346,42 @@ export default function CourseDetail() {
                   <div className="space-y-4 mb-8">
                     <h4 className="font-bold text-sm uppercase tracking-widest">This course includes:</h4>
                     <ul className="space-y-3">
-                      {[
-                        { icon: Monitor, text: `${course.hours} hours on-demand video` },
-                        { icon: FileText, text: "12 downloadable resources" },
-                        { icon: Infinity, text: "Full lifetime access" },
-                        { icon: Smartphone, text: "Access on mobile and TV" },
-                        { icon: Award, text: "Certificate of completion" },
-                      ].map(({ icon: Icon, text }) => (
-                        <li key={text} className="flex items-center gap-3 text-sm text-muted-foreground">
-                          <Icon className="size-5 text-primary" />
-                          <span>{text}</span>
-                        </li>
-                      ))}
+                      {(course.includes && course.includes.length > 0) ? (
+                        course.includes.map((text, i) => {
+                          let Icon = Monitor;
+                          if (text.toLowerCase().includes('download')) Icon = Download;
+                          if (text.toLowerCase().includes('lifetime')) Icon = Infinity;
+                          if (text.toLowerCase().includes('mobile')) Icon = Smartphone;
+                          if (text.toLowerCase().includes('certificate')) Icon = Award;
+                          if (text.toLowerCase().includes('article')) Icon = FileText;
+
+                          return (
+                            <li key={i} className="flex items-center gap-3 text-sm text-muted-foreground">
+                              <Icon className="size-5 text-primary" />
+                              <span>{text}</span>
+                            </li>
+                          );
+                        })
+                      ) : (
+                        [
+                          { icon: Monitor, text: `${course.hours || course.duration || '0'} hours on-demand video` },
+                          { icon: FileText, text: "Downloadable resources" },
+                          { icon: Infinity, text: "Full lifetime access" },
+                          { icon: Smartphone, text: "Access on mobile and TV" },
+                          { icon: Award, text: "Certificate of completion" },
+                        ].map(({ icon: Icon, text }) => (
+                          <li key={text} className="flex items-center gap-3 text-sm text-muted-foreground">
+                            <Icon className="size-5 text-primary" />
+                            <span>{text}</span>
+                          </li>
+                        ))
+                      )}
                     </ul>
                   </div>
                   <div className="border-t border-border pt-6">
                     <h4 className="font-bold text-sm mb-4">Skills you'll gain</h4>
                     <div className="flex flex-wrap gap-2">
-                      {skills.map((skill) => (
+                      {(course.skills || skills).map((skill) => (
                         <span key={skill} className="px-3 py-1 bg-secondary rounded-full text-xs font-semibold text-muted-foreground">
                           {skill}
                         </span>

@@ -63,11 +63,15 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 
     if (user && (await user.matchPassword(password))) {
+        // Populate enrolled courses to ensure frontend has immediate access
+        const populatedUser = await User.findById(user._id).populate('enrolledCourses.course');
+
         res.json({
             _id: user.id,
             name: user.name,
             email: user.email,
             role: user.role,
+            enrolledCourses: populatedUser.enrolledCourses,
             token: generateToken(user._id),
         });
     } else {

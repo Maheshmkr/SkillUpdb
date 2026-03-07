@@ -1,38 +1,58 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { MainLayout } from "@/components/MainLayout";
-import { ChevronRight, Search, Play, Activity, Sparkles, BookOpen, CircleHelp, Video, Star } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { getUserProfile } from "@/api/userApi";
+import { ChevronRight, Search, Play, Activity, Sparkles, BookOpen, CircleHelp, Video, Star, MessageSquare, Trophy } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getUserProfile, submitFeedback } from "@/api/userApi";
 import { getPublishedCourses } from "@/api/courseApi";
-import courseSecurity from "@/assets/course-security.jpg";
-import courseReact from "@/assets/course-react.jpg";
-import courseDatascience from "@/assets/course-datascience.jpg";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 const tabs = ["In Progress", "Completed", "Wishlist"];
 
 export default function MyLearning() {
-  // 1. Fetch User Profile for Enrollment Data
+  const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState("In Progress");
+  const [search, setSearch] = useState("");
+  const [selectedCourseForFeedback, setSelectedCourseForFeedback] = useState(null);
+  const [feedbackRating, setFeedbackRating] = useState(0);
+  const [feedbackComment, setFeedbackComment] = useState("");
+
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
   const { data: user, isLoading: loadingProfile } = useQuery({
     queryKey: ['profile'],
-    queryFn: async () => {
-      return await getUserProfile();
-    },
+    queryFn: getUserProfile,
     enabled: !!userInfo.token
   });
 
   const { data: allCourses = [] } = useQuery({
     queryKey: ['courses'],
-    queryFn: async () => {
-      return await getPublishedCourses();
+    queryFn: getPublishedCourses
+  });
+
+  const feedbackMutation = useMutation({
+    mutationFn: submitFeedback,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['profile']);
+      setSelectedCourseForFeedback(null);
+      setFeedbackRating(0);
+      setFeedbackComment("");
     }
   });
 
-  const enrolledCourses = user?.enrolledCourses || [];
+  const handleFeedbackSubmit = () => {
+    if (selectedCourseForFeedback && feedbackRating > 0) {
+      feedbackMutation.mutate({
+        courseId: selectedCourseForFeedback._id,
+        rating: feedbackRating,
+        comment: feedbackComment
+      });
+    }
+  };
 
-  const [activeTab, setActiveTab] = useState("In Progress");
-  const [search, setSearch] = useState("");
+  const enrolledCourses = [...(user?.enrolledCourses || [])].sort((a, b) =>
+    new Date(b.lastAccessed || 0) - new Date(a.lastAccessed || 0)
+  );
 
   if (loadingProfile) return <div className="p-10 text-center">Loading your courses...</div>;
 
@@ -77,28 +97,28 @@ export default function MyLearning() {
         <div className="p-8 flex flex-col xl:flex-row gap-8">
           {/* Course List */}
           <div className="flex-1 space-y-6">
-            {enrolledCourses
-              .map(e => {
-                // If course is not populated (it's just an ID), try to find it in allCourses
-                if (typeof e.course === 'string') {
-                  const populatedCourse = allCourses.find(c => (c._id || c.id) === e.course);
-                  return populatedCourse ? { ...e, course: populatedCourse } : e;
-                }
-                return e;
-              })
-              .filter(e => e.course && typeof e.course !== 'string') // Only show if we found the course object
-              .filter(e => activeTab === "Completed" ? e.isCompleted : !e.isCompleted)
-              .filter((e) => (e.course.title || "").toLowerCase().includes(search.toLowerCase()))
-              .map((enrollment) => {
+            {(() => {
+              const processed = enrolledCourses
+                .map(e => {
+                  if (typeof e.course === 'string') {
+                    const populatedCourse = allCourses.find(c => (c._id || c.id) === e.course);
+                    return populatedCourse ? { ...e, course: populatedCourse } : e;
+                  }
+                  return e;
+                })
+                .filter(e => e.course && typeof e.course !== 'string')
+                .filter(e => activeTab === "Completed" ? e.progress === 100 : e.progress < 100)
+                .filter((e) => (e.course.title || "").toLowerCase().includes(search.toLowerCase()));
+
+              return processed.map((enrollment) => {
                 const course = enrollment.course;
-                const courseId = course._id || course.id;
                 return (
                   <div
                     key={course._id}
                     className="bg-card rounded-xl p-4 shadow-sm border border-border flex flex-col md:flex-row gap-6 items-center group hover:shadow-md transition-shadow"
                   >
                     <div className="relative w-full md:w-48 h-32 rounded-lg overflow-hidden shrink-0">
-                      <img src={course.image} alt={course.title} className="w-full h-full object-cover" />
+                      <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-foreground/20 group-hover:bg-transparent transition-all" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -108,30 +128,55 @@ export default function MyLearning() {
                           {course.category}
                         </span>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-4">Instructor: {course.instructor}</p>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-xs font-semibold">
-                          <span className="text-muted-foreground">{enrollment.progress}% Complete</span>
-                          <span className="text-muted-foreground/60 italic">Last accessed: Recently</span>
+                      <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                        {course.subtitle}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-4">
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-secondary/50 px-2 py-1 rounded-md">
+                          <BookOpen className="size-3" />
+                          <span>{enrollment.completedLessons.length} / {course.modules.flatMap(m => m.lessons).length} Lessons</span>
                         </div>
-                        <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
-                          <div className="bg-primary h-full rounded-full transition-all" style={{ width: `${enrollment.progress}%` }} />
+                        <div className="flex-1 min-w-[120px]">
+                          <div className="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-tighter">
+                            <span>Progress</span>
+                            <span className="text-primary">{enrollment.progress}%</span>
+                          </div>
+                          <div className="h-1 bg-secondary rounded-full overflow-hidden">
+                            <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${enrollment.progress}%` }} />
+                          </div>
                         </div>
                       </div>
                     </div>
-                    <div className="shrink-0 w-full md:w-auto">
+                    <div className="shrink-0 w-full md:w-auto flex flex-col gap-2">
                       <Link
                         to={`/learn/${course._id}`}
-                        className="w-full md:w-auto px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+                        className="w-full md:w-auto px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
                       >
                         <Play className="size-4" />
                         {enrollment.isCompleted ? "Review" : "Continue"}
                       </Link>
+                      {enrollment.progress === 100 && (
+                        <Link
+                          to={`/learn/${course._id}/achievements`}
+                          className="w-full md:w-auto px-6 py-2 bg-success/10 text-success rounded-lg font-bold hover:bg-success/20 transition-colors flex items-center justify-center gap-2 text-xs"
+                        >
+                          <Trophy className="size-3" /> Download Certificate
+                        </Link>
+                      )}
+                      {enrollment.progress === 100 && !enrollment.rating && (
+                        <button
+                          onClick={() => setSelectedCourseForFeedback(course)}
+                          className="w-full md:w-auto px-6 py-2 bg-secondary text-secondary-foreground rounded-lg font-semibold hover:bg-secondary/80 transition-colors flex items-center justify-center gap-2 text-xs"
+                        >
+                          <MessageSquare className="size-3" /> Leave Review
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
-              })}
-            {enrolledCourses.filter(e => activeTab === "Completed" ? e.isCompleted : !e.isCompleted).length === 0 && (
+              });
+            })()}
+            {enrolledCourses.filter(e => activeTab === "Completed" ? e.progress === 100 : e.progress < 100).length === 0 && (
               <div className="text-center py-20 bg-card rounded-xl border border-dashed border-border">
                 <BookOpen className="size-12 mx-auto mb-4 text-muted-foreground opacity-20" />
                 <p className="text-muted-foreground">No courses found in "{activeTab}"</p>
@@ -141,6 +186,53 @@ export default function MyLearning() {
               </div>
             )}
           </div>
+
+          {/* Feedback Dialog */}
+          <Dialog open={!!selectedCourseForFeedback} onOpenChange={(open) => !open && setSelectedCourseForFeedback(null)}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Course Feedback</DialogTitle>
+                <DialogDescription>
+                  How was your experience with "{selectedCourseForFeedback?.title}"? Your feedback helps us improve.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-6 space-y-6">
+                <div className="flex flex-col items-center gap-3">
+                  <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Overall Rating</p>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        onClick={() => setFeedbackRating(star)}
+                        className="transition-transform active:scale-95"
+                      >
+                        <Star className={`size-8 ${star <= feedbackRating ? "fill-yellow-400 text-yellow-400" : "text-border"}`} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Your Thoughts</label>
+                  <textarea
+                    className="w-full p-4 rounded-xl bg-secondary focus:ring-2 focus:ring-primary outline-none transition-all resize-none text-sm min-h-[100px]"
+                    placeholder="What did you like or dislike? How can we make it better?"
+                    value={feedbackComment}
+                    onChange={(e) => setFeedbackComment(e.target.value)}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="ghost" onClick={() => setSelectedCourseForFeedback(null)}>Cancel</Button>
+                <Button
+                  onClick={handleFeedbackSubmit}
+                  disabled={feedbackRating === 0 || feedbackMutation.isPending}
+                  className="px-8 font-bold"
+                >
+                  {feedbackMutation.isPending ? "Submitting..." : "Submit Review"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
           {/* Right Sidebar */}
           <aside className="w-full xl:w-80 space-y-8">

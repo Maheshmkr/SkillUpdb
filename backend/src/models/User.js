@@ -52,7 +52,11 @@ const userSchema = mongoose.Schema(
                 progress: { type: Number, default: 0 },
                 completedLessons: [String], // Array of lesson titles or IDs
                 isCompleted: { type: Boolean, default: false },
-                lastAccessed: { type: Date, default: Date.now }
+                certificateNameConfirmed: { type: Boolean, default: false },
+                lastAccessed: { type: Date, default: Date.now },
+                quizScores: { type: Map, of: Number, default: {} }, // Record scores for quizzes
+                rating: { type: Number, default: 0 },
+                comment: { type: String, default: '' }
             }
         ],
         certificates: [
@@ -60,6 +64,15 @@ const userSchema = mongoose.Schema(
                 course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
                 date: { type: Date, default: Date.now },
                 pdfUrl: String
+            }
+        ],
+        badges: [
+            {
+                course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
+                name: { type: String, required: true },
+                description: String,
+                icon: String,
+                earnedAt: { type: Date, default: Date.now }
             }
         ],
     },

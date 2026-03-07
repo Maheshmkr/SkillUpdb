@@ -157,21 +157,38 @@ export default function CourseApprovals() {
                                         <h2 className="text-2xl font-bold mb-2">{selectedCourse.title}</h2>
                                         <p className="text-muted-foreground">{selectedCourse.description}</p>
                                     </div>
+                                    <div className="flex gap-4">
+                                        <button
+                                            onClick={() => window.open(`/course/${selectedCourse._id}`, '_blank')}
+                                            className="flex-1 py-3 bg-secondary border border-border rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-secondary/70 transition-all"
+                                        >
+                                            <Eye className="size-4" /> Preview Marketing Page
+                                        </button>
+                                        <button
+                                            onClick={() => window.open(`/learn/${selectedCourse._id}`, '_blank')}
+                                            className="flex-1 py-3 bg-primary/10 text-primary border border-primary/20 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-primary/20 transition-all"
+                                        >
+                                            <Video className="size-4" /> Preview Learning Experience
+                                        </button>
+                                    </div>
+
                                     <div className="space-y-4">
                                         <h3 className="font-bold border-b border-border pb-2">Curriculum Preview</h3>
-                                        {[1, 2, 3].map((s) => (
-                                            <div key={s} className="border border-border rounded-lg p-4">
+                                        {(selectedCourse.modules || []).map((module, idx) => (
+                                            <div key={module._id || idx} className="border border-border rounded-lg p-4">
                                                 <div className="flex items-center justify-between font-bold text-sm mb-2">
-                                                    <span>Section {s}: Introduction</span>
-                                                    <span className="text-muted-foreground font-normal">3 Lessons</span>
+                                                    <span>Section {idx + 1}: {module.title}</span>
+                                                    <span className="text-muted-foreground font-normal">{module.lessons?.length || 0} Lessons</span>
                                                 </div>
                                                 <div className="space-y-2 pl-4 border-l-2 border-primary/20">
-                                                    <div className="flex items-center gap-2 text-sm">
-                                                        <Video className="size-3 text-blue-500" /> Welcome Video
-                                                    </div>
-                                                    <div className="flex items-center gap-2 text-sm">
-                                                        <FileText className="size-3 text-orange-500" /> Course Resources
-                                                    </div>
+                                                    {(module.lessons || []).map((lesson, lidx) => (
+                                                        <div key={lesson._id || lidx} className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                            {lesson.type === 'video' ? <Video className="size-3 text-blue-500" /> :
+                                                                lesson.type === 'quiz' ? <Check className="size-3 text-green-500" /> :
+                                                                    <FileText className="size-3 text-orange-500" />}
+                                                            {lesson.title}
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             </div>
                                         ))}

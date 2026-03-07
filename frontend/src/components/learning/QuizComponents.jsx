@@ -38,7 +38,7 @@ const QuizAttempt = ({ quiz, onFinish }) => {
             </div>
 
             <div className="mb-10">
-                <h3 className="text-xl font-medium text-gray-800 mb-6">{currentQ.questionText}</h3>
+                <h3 className="text-xl font-medium text-gray-800 mb-6">{currentQ.questionText || currentQ.question}</h3>
                 <div className="space-y-3">
                     {currentQ.options.map((option, idx) => (
                         <button

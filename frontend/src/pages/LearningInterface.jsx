@@ -27,6 +27,14 @@ const getEmbedUrl = (url) => {
   return url;
 };
 
+const getInitials = (name) => {
+  if (!name) return "AM";
+  const parts = name.split(' ').filter(Boolean);
+  if (parts.length === 0) return "AM";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
+
 export default function LearningInterface() {
   const { courseId: id } = useParams();
   const queryClient = useQueryClient();
@@ -205,7 +213,7 @@ export default function LearningInterface() {
               <Bell className="size-5" />
             </button>
             <div className="w-10 h-10 rounded-full bg-primary/20 border-2 border-primary/20 flex items-center justify-center text-primary font-bold text-sm">
-              AM
+              {getInitials(userInfo.name)}
             </div>
           </div>
         </div>

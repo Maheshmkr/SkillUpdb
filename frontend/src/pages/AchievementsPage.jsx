@@ -20,6 +20,9 @@ export default function AchievementsPage() {
         queryFn: () => getUserProgress(courseId)
     });
 
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const userName = userInfo.name || 'Mahesh Kumar';
+
     if (loadingCourse || loadingProgress) return <div className="h-screen flex items-center justify-center">Loading achievements...</div>;
 
     // Mock data for badges and certificates
@@ -93,7 +96,11 @@ export default function AchievementsPage() {
                             <Award className="text-blue-600" size={32} />
                             <h2 className="text-3xl font-bold text-gray-900">Professional Certificate</h2>
                         </div>
-                        <CertificatePanel state={certificateState} />
+                        <CertificatePanel
+                            state={certificateState}
+                            courseTitle={course?.title || "Professional Certificate"}
+                            userName={userName}
+                        />
                     </section>
 
                     {/* Badges Section */}

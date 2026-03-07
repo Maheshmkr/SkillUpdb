@@ -7,9 +7,37 @@ const User = require('../models/User');
 const getUserProfile = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id)
         .populate('enrolledCourses.course')
-        .populate('certificates.course');
+        .populate('certificates.course')
+        .populate('badges.course');
 
     if (user) {
+        // Sync missing certificates if any
+        let changed = false;
+        user.enrolledCourses.forEach(enrollment => {
+            // Force completion if progress is 100%
+            if (enrollment.progress === 100 && !enrollment.isCompleted) {
+                enrollment.isCompleted = true;
+                changed = true;
+            }
+
+            if (enrollment.isCompleted && enrollment.course) {
+                const hasCert = user.certificates.some(c =>
+                    (c.course?._id || c.course)?.toString() === enrollment.course._id.toString()
+                );
+                if (!hasCert) {
+                    user.certificates.push({
+                        course: enrollment.course._id,
+                        date: enrollment.lastAccessed || Date.now(),
+                        pdfUrl: `/uploads/certificates/${user._id}-${enrollment.course._id}.pdf`
+                    });
+                    changed = true;
+                }
+            }
+        });
+
+        if (changed) {
+            await user.save();
+        }
         res.json({
             _id: user._id,
             name: user.name,
@@ -23,6 +51,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
             stats: user.stats,
             enrolledCourses: user.enrolledCourses,
             certificates: user.certificates,
+            badges: user.badges,
         });
     } else {
         res.status(404);
@@ -51,7 +80,8 @@ const updateUserProfile = asyncHandler(async (req, res) => {
         const savedUser = await user.save();
         const updatedUser = await User.findById(savedUser._id)
             .populate('enrolledCourses.course')
-            .populate('certificates.course');
+            .populate('certificates.course')
+            .populate('badges.course');
 
         res.json({
             _id: updatedUser._id,
@@ -66,6 +96,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
             stats: updatedUser.stats,
             enrolledCourses: updatedUser.enrolledCourses,
             certificates: updatedUser.certificates,
+            badges: updatedUser.badges,
             token: req.headers.authorization ? req.headers.authorization.split(' ')[1] : null,
         });
     } else {

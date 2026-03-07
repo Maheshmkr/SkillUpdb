@@ -1,16 +1,27 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { GraduationCap, Compass, CirclePlay, Users, Bookmark, LayoutDashboard, User, LogOut } from "lucide-react";
+import { GraduationCap, Compass, CirclePlay, Users, Bookmark, LayoutDashboard, User, LogOut, Settings as SettingsIcon } from "lucide-react";
 
 const mainNav = [
   { title: "Dashboard", to: "/", icon: LayoutDashboard },
   { title: "Explore", to: "/explore", icon: Compass },
   { title: "My Learning", to: "/my-learning", icon: CirclePlay },
   { title: "Profile", to: "/profile", icon: User },
+  { title: "Settings", to: "/settings", icon: SettingsIcon },
 ];
 
 export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+
+  const getInitials = (name) => {
+    if (!name) return "MS";
+    const parts = name.split(' ').filter(Boolean);
+    if (parts.length === 0) return "MS";
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
 
   const handleLogout = (e) => {
     e.preventDefault();
@@ -25,9 +36,9 @@ export function AppSidebar() {
       <div className="p-6 border-b border-border">
         <Link to="/" className="flex items-center gap-3 text-primary">
           <div className="size-9 bg-primary rounded-xl flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
-            <GraduationCap className="size-5" />
+            <Compass className="size-5" />
           </div>
-          <h2 className="text-xl font-bold tracking-tight text-foreground">EduDiscover</h2>
+          <h2 className="text-xl font-bold tracking-tight text-foreground">SkillUp</h2>
         </Link>
       </div>
 
@@ -60,12 +71,12 @@ export function AppSidebar() {
         <div className="flex items-center gap-3">
           <div className="size-10 rounded-full bg-secondary overflow-hidden border-2 border-primary/20">
             <div className="w-full h-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
-              AM
+              {getInitials(userInfo.name)}
             </div>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold truncate">Alex Morgan</p>
-            <p className="text-[10px] text-muted-foreground truncate">Premium Student</p>
+            <p className="text-sm font-bold truncate">{userInfo.name || "Alex Morgan"}</p>
+            <p className="text-[10px] text-muted-foreground truncate">{userInfo.role || "Premium Student"}</p>
           </div>
           <button
             onClick={handleLogout}

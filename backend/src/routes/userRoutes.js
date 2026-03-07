@@ -4,7 +4,7 @@ const {
     getUserProfile,
     updateUserProfile,
 } = require('../controllers/userController');
-const { updateProgress, getProgress, enrollCourse } = require('../controllers/progressController');
+const { updateProgress, getProgress, enrollCourse, submitFeedback, confirmCertificateName } = require('../controllers/progressController');
 const { protect } = require('../middleware/authMiddleware');
 
 router
@@ -15,5 +15,7 @@ router
 router.route('/enroll').post(protect, enrollCourse);
 router.route('/progress').put(protect, updateProgress);
 router.route('/progress/:courseId').get(protect, getProgress);
+router.route('/progress/:courseId/confirm-name').put(protect, confirmCertificateName);
+router.route('/feedback').put(protect, submitFeedback);
 
 module.exports = router;

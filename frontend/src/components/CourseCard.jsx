@@ -67,7 +67,10 @@ const CourseCard = ({ course }) => {
           <button
             className="p-2 bg-white rounded-full text-gray-900 hover:bg-blue-600 hover:text-white transition-colors"
             title="Save for Later"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate('/cart');
+            }}
           >
             <ShoppingCart size={20} />
           </button>
@@ -84,7 +87,7 @@ const CourseCard = ({ course }) => {
         </p>
 
         <div className="mt-auto">
-          <p className="text-gray-500 text-xs mb-2">
+          <p className="text-gray-500 text-xs mb-2 font-medium">
             {instructor?.name || 'SkillUp Instructor'}
           </p>
 

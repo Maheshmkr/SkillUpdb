@@ -64,12 +64,47 @@ const courseSchema = mongoose.Schema(
         },
         rejectionReason: String,
 
+        // Badges (Step 4)
+        badges: [
+            {
+                name: String,
+                description: String,
+                icon: String,
+                rules: [
+                    {
+                        type: { type: String, enum: ['module_completion', 'lesson_completion', 'quiz_score'] },
+                        value: String // ID of module or lesson
+                    }
+                ]
+            }
+        ],
+
+        // Certification & Gating (Step 4)
+        certificateConfig: {
+            enabled: { type: Boolean, default: true },
+            criteria: { type: String, enum: ['all', 'selected'], default: 'all' },
+            requiredModules: [String], // Array of module IDs
+            finalTestId: String, // ID of a quiz lesson that acts as final exam
+            minimumScore: { type: Number, default: 80 } // Passing score for certificate
+        },
+        gatingEnabled: { type: Boolean, default: true },
+
         // Analytics & Display
         students: { type: Number, default: 0 },
         rating: { type: Number, default: 0 },
         reviews: { type: Number, default: 0 },
+        reviewList: [
+            {
+                user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+                name: String,
+                avatar: String,
+                rating: Number,
+                comment: String,
+                date: { type: Date, default: Date.now }
+            }
+        ],
         image: String, // Fallback to thumbnail
-        badge: String,
+        badge: String, // Legacy single badge
         badgeColor: String,
 
         // Legacy fields for compatibility

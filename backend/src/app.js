@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const dotenv = require('dotenv');
 
 // Load environment variables
@@ -21,6 +22,8 @@ const courseRoutes = require('./routes/courseRoutes');
 const userRoutes = require('./routes/userRoutes');
 const instructorCourseRoutes = require('./routes/instructorCourseRoutes');
 const adminCourseRoutes = require('./routes/adminCourseRoutes');
+const adminUserRoutes = require('./routes/adminUserRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -28,6 +31,12 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/instructor/courses', instructorCourseRoutes);
 app.use('/api/admin/courses', adminCourseRoutes);
+app.use('/api/admin/users', adminUserRoutes);
+app.use('/api/upload', uploadRoutes);
+
+// Static folders
+const uploadsPath = path.join(__dirname, '..', 'uploads');
+app.use('/uploads', express.static(uploadsPath));
 
 // Error Handling Middleware (placeholder)
 app.use((err, req, res, next) => {

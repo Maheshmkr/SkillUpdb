@@ -53,11 +53,43 @@ const importData = async () => {
 
                     userToCreate.enrolledCourses = [{
                         course: uiuxCourse._id,
-                        progress: 25,
-                        completedLessons: lessons.slice(0, 2).map(l => l.title),
-                        isCompleted: false,
+                        progress: 100,
+                        completedLessons: lessons.map(l => l.title || l.id),
+                        isCompleted: true,
                         lastAccessed: Date.now()
                     }];
+
+                    userToCreate.certificates = [{
+                        course: uiuxCourse._id,
+                        date: new Date('2026-03-01'),
+                        pdfUrl: `/uploads/certificates/${maheshId}-${uiuxCourse._id}.pdf`
+                    }];
+
+                    userToCreate.badges = [
+                        {
+                            course: uiuxCourse._id,
+                            name: "Curriculum Starter",
+                            description: "Completed your first module in the course.",
+                            icon: "/uploads/badges/starter.png",
+                            earnedAt: new Date('2026-02-25')
+                        },
+                        {
+                            course: uiuxCourse._id,
+                            name: "Design Pro",
+                            description: "Completed all core modules with high scores.",
+                            icon: "/uploads/badges/pro.png",
+                            earnedAt: new Date('2026-03-01')
+                        }
+                    ];
+
+                    userToCreate.stats = {
+                        coursesCompleted: 1,
+                        hoursLearned: 32,
+                        skillsMastered: 12
+                    };
+
+                    // Update Course student count
+                    await Course.findByIdAndUpdate(uiuxCourse._id, { $inc: { students: 1 } });
                 }
             }
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { InstructorLayout } from "@/layouts/InstructorLayout";
-import { User, Mail, MapPin, Award, BookOpen, Users, Star, Calendar } from "lucide-react";
+import { User, Mail, MapPin, Award, BookOpen, Users, Star, Calendar, LogOut } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function InstructorProfile() {
     const [profile, setProfile] = React.useState({
@@ -113,12 +114,21 @@ export default function InstructorProfile() {
                                         </button>
                                     </>
                                 ) : (
-                                    <button
-                                        onClick={() => setIsEditing(true)}
-                                        className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90"
-                                    >
-                                        Edit Profile
-                                    </button>
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={() => setIsEditing(true)}
+                                            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90"
+                                        >
+                                            Edit Profile
+                                        </button>
+                                        <Link
+                                            to="/logout"
+                                            className="px-4 py-2 border border-destructive text-destructive rounded-lg font-medium hover:bg-destructive/10 flex items-center gap-2"
+                                        >
+                                            <LogOut className="size-4" />
+                                            Logout
+                                        </Link>
+                                    </div>
                                 )}
                             </div>
                         </div>

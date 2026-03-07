@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, LogIn } from "lucide-react";
+import { Compass, LogIn } from "lucide-react";
 import loginHero from "@/assets/auth-login-hero.jpg";
 import axiosInstance from "../api/axiosInstance";
 
@@ -56,9 +56,9 @@ const Login = () => {
         <div className="relative z-10 max-w-lg">
           <div className="mb-8 flex items-center gap-2">
             <div className="bg-primary p-2 rounded-lg">
-              <GraduationCap className="w-7 h-7 text-primary-foreground" />
+              <Compass className="w-7 h-7 text-primary-foreground" />
             </div>
-            <span className="text-2xl font-bold text-foreground">EduDiscover</span>
+            <span className="text-2xl font-bold text-foreground">SkillUp</span>
           </div>
           <div className="rounded-xl overflow-hidden shadow-2xl mb-12 border-4 border-card">
             <img src={loginHero} alt="Students collaborating" className="w-full aspect-video object-cover" />
@@ -86,9 +86,9 @@ const Login = () => {
           {/* Mobile logo */}
           <div className="md:hidden mb-12 flex items-center gap-2">
             <div className="bg-primary p-2 rounded-lg">
-              <GraduationCap className="w-5 h-5 text-primary-foreground" />
+              <Compass className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold text-foreground">EduDiscover</span>
+            <span className="text-xl font-bold text-foreground">SkillUp</span>
           </div>
 
           <div className="mb-10">

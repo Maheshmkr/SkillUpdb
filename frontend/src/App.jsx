@@ -10,8 +10,14 @@ import AchievementsPage from "./pages/AchievementsPage";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import EnrollmentSuccess from "./pages/EnrollmentSuccess";
+import EditProfile from "./pages/EditProfile";
 import NotFound from "./pages/NotFound";
 
+
+import Logout from "./pages/Logout";
+import Cart from "./pages/Cart";
+import Settings from "./pages/Settings";
+import CourseDetail from "./pages/CourseDetail"; // Added for consistency check
 
 import InstructorDashboard from "./pages/instructor/Dashboard";
 import InstructorMyCourses from "./pages/instructor/MyCourses";
@@ -30,10 +36,9 @@ import ManageInstructors from "./pages/admin/ManageInstructors";
 import Reports from "./pages/admin/Reports";
 import AuditLogs from "./pages/admin/AuditLogs";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./api/queryClient";
 import { Navigate } from "react-router-dom";
-
-const queryClient = new QueryClient();
 
 // Simple Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -56,12 +61,16 @@ function App() {
           {/* Protected Routes */}
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/explore" element={<ProtectedRoute><Explore /></ProtectedRoute>} />
-          <Route path="/course/:id" element={<ProtectedRoute><CourseDetailBeforeEnroll /></ProtectedRoute>} />
+          <Route path="/course/:id" element={<ProtectedRoute><CourseDetail /></ProtectedRoute>} />
           <Route path="/learn/:courseId" element={<ProtectedRoute><LearningPlayer /></ProtectedRoute>} />
           <Route path="/learn/:courseId/achievements" element={<ProtectedRoute><AchievementsPage /></ProtectedRoute>} />
           <Route path="/my-learning" element={<ProtectedRoute><MyLearning /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/profile/edit" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
           <Route path="/enrollment-success" element={<ProtectedRoute><EnrollmentSuccess /></ProtectedRoute>} />
+          <Route path="/logout" element={<Logout />} />
 
           {/* Instructor Portal Routes */}
           <Route path="/instructor/dashboard" element={<ProtectedRoute><InstructorDashboard /></ProtectedRoute>} />

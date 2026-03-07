@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
     Trophy, Lock, Award, Info, CheckCircle,
     Download, ExternalLink, Calendar, ShieldCheck
 } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 const BadgesPanel = ({ badges }) => {
     const [selectedBadge, setSelectedBadge] = useState(null);
@@ -19,7 +21,15 @@ const BadgesPanel = ({ badges }) => {
                     >
                         <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-transform group-hover:scale-110 ${badge.isUnlocked ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-400'
                             }`}>
-                            {badge.isUnlocked ? <Trophy size={32} /> : <Lock size={28} />}
+                            {badge.isUnlocked ? (
+                                badge.icon ? (
+                                    <img src={badge.icon} alt={badge.name} className="w-10 h-10 object-contain" />
+                                ) : (
+                                    <Trophy size={32} />
+                                )
+                            ) : (
+                                <Lock size={28} />
+                            )}
                         </div>
                         <h3 className="font-bold text-gray-900 mb-1">{badge.name}</h3>
                         <p className="text-sm text-gray-500 line-clamp-2 mb-4">{badge.description}</p>
@@ -50,7 +60,15 @@ const BadgesPanel = ({ badges }) => {
                         <div className="flex justify-center mb-6">
                             <div className={`w-24 h-24 rounded-full flex items-center justify-center ${selectedBadge.isUnlocked ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'
                                 }`}>
-                                {selectedBadge.isUnlocked ? <Trophy size={48} /> : <Lock size={40} />}
+                                {selectedBadge.isUnlocked ? (
+                                    selectedBadge.icon ? (
+                                        <img src={selectedBadge.icon} alt={selectedBadge.name} className="w-16 h-16 object-contain" />
+                                    ) : (
+                                        <Trophy size={48} />
+                                    )
+                                ) : (
+                                    <Lock size={40} />
+                                )}
                             </div>
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">{selectedBadge.name}</h2>
@@ -87,8 +105,35 @@ const BadgesPanel = ({ badges }) => {
     );
 };
 
-const CertificatePanel = ({ state }) => {
+const CertificatePanel = ({ state, courseTitle, userName }) => {
     // state: { status: 'notEligible' | 'eligible' | 'issued', certificateId?: string, issuedAt?: string, missingItems?: string[] }
+    const certificateRef = useRef(null);
+
+    const downloadPDF = async () => {
+        if (!certificateRef.current) return;
+
+        try {
+            const canvas = await html2canvas(certificateRef.current, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff'
+            });
+
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({
+                orientation: 'landscape',
+                unit: 'px',
+                format: [canvas.width, canvas.height]
+            });
+
+            pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+            pdf.save(`SkillUp-Certificate-${courseTitle.replace(/\s+/g, '-')}.pdf`);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Failed to generate PDF. Please try again.');
+        }
+    };
 
     if (state.status === 'notEligible') {
         return (
@@ -135,50 +180,130 @@ const CertificatePanel = ({ state }) => {
     }
 
     return (
-        <div className="bg-white border-2 border-blue-600 rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row">
-            <div className="md:w-1/3 bg-gray-900 p-12 flex flex-col justify-center items-center text-center">
-                <div className="w-24 h-24 bg-blue-600 text-white rounded-full flex items-center justify-center mb-6 shadow-lg">
-                    <Award size={48} />
+        <div className="space-y-8">
+            {/* Display Card */}
+            <div className="bg-white border-2 border-blue-600 rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row">
+                <div className="md:w-1/3 bg-gray-900 p-12 flex flex-col justify-center items-center text-center">
+                    <div className="w-24 h-24 bg-blue-600 text-white rounded-full flex items-center justify-center mb-6 shadow-lg">
+                        <Award size={48} />
+                    </div>
+                    <div className="space-y-1 mb-8">
+                        <p className="text-[10px] font-bold text-blue-400 uppercase tracking-tighter">Verified Credential</p>
+                        <p className="text-xl font-black text-white">SkillUp Certified</p>
+                    </div>
+                    <div className="text-[10px] text-gray-500 font-mono">
+                        ID: {state.certificateId}
+                    </div>
                 </div>
-                <div className="space-y-1 mb-8">
-                    <p className="text-[10px] font-bold text-blue-400 uppercase tracking-tighter">Verified Credential</p>
-                    <p className="text-xl font-black text-white">SkillUp Certified</p>
-                </div>
-                <div className="text-[10px] text-gray-500 font-mono">
-                    ID: {state.certificateId}
+
+                <div className="flex-1 p-12 relative overflow-hidden bg-white">
+                    <div className="absolute top-0 right-0 p-8 opacity-5">
+                        <ShieldCheck size={200} />
+                    </div>
+
+                    <div className="max-w-md">
+                        <span className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-4 block">Certificate Issued</span>
+                        <h3 className="text-4xl font-black text-gray-900 mb-6 leading-tight">{courseTitle}</h3>
+
+                        <div className="grid grid-cols-2 gap-8 mb-10">
+                            <div>
+                                <p className="text-xs font-bold text-gray-400 uppercase mb-1">Learner</p>
+                                <p className="text-lg font-bold text-gray-800">{userName}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold text-gray-400 uppercase mb-1">Issue Date</p>
+                                <p className="text-lg font-bold text-gray-800">{state.issuedAt}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <button
+                                onClick={downloadPDF}
+                                className="flex-1 py-4 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all flex items-center justify-center gap-2 shadow-lg shadow-gray-200"
+                            >
+                                <Download size={20} />
+                                Download PDF
+                            </button>
+                            <button className="px-6 py-4 bg-white border border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
+                                <ExternalLink size={20} />
+                                Share
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div className="flex-1 p-12 relative overflow-hidden bg-white">
-                <div className="absolute top-0 right-0 p-8 opacity-5">
-                    <ShieldCheck size={200} />
-                </div>
+            {/* Hidden Certificate for PDF Capture - Branded "SkillUp" */}
+            <div className="fixed left-[-9999px] top-0">
+                <div
+                    ref={certificateRef}
+                    className="w-[1123px] h-[794px] bg-white border-[20px] border-gray-100 p-16 flex flex-col relative overflow-hidden"
+                    style={{ fontFamily: 'Inter, sans-serif' }}
+                >
+                    {/* Background Pattern */}
+                    <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+                        <ShieldCheck size={600} className="absolute -right-20 -bottom-20 rotate-12" />
+                        <ShieldCheck size={300} className="absolute -left-10 top-20 -rotate-12" />
+                        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(#3b82f6 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+                    </div>
 
-                <div className="max-w-md">
-                    <span className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-4 block">Certificate Issued</span>
-                    <h3 className="text-4xl font-black text-gray-900 mb-6 leading-tight">Professional Certificate in Advanced UI Design</h3>
-
-                    <div className="grid grid-cols-2 gap-8 mb-10">
-                        <div>
-                            <p className="text-xs font-bold text-gray-400 uppercase mb-1">Learner</p>
-                            <p className="text-lg font-bold text-gray-800">Mahesh Kumar</p>
+                    {/* Logo & Header */}
+                    <div className="flex justify-between items-start mb-20 relative z-10">
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                                <Award size={28} />
+                            </div>
+                            <span className="text-3xl font-black text-gray-900 tracking-tighter">Skill<span className="text-blue-600">Up</span></span>
                         </div>
-                        <div>
-                            <p className="text-xs font-bold text-gray-400 uppercase mb-1">Issue Date</p>
-                            <p className="text-lg font-bold text-gray-800">{state.issuedAt}</p>
+                        <div className="text-right">
+                            <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">Official Certification</p>
+                            <p className="text-sm font-mono text-gray-400">ID: {state.certificateId}</p>
                         </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <button className="flex-1 py-4 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all flex items-center justify-center gap-2 shadow-lg shadow-gray-200">
-                            <Download size={20} />
-                            Download PDF
-                        </button>
-                        <button className="px-6 py-4 bg-white border border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
-                            <ExternalLink size={20} />
-                            Share
-                        </button>
+                    {/* Content */}
+                    <div className="flex-1 flex flex-col items-center justify-center text-center relative z-10">
+                        <p className="text-sm font-bold text-gray-400 uppercase tracking-[0.3em] mb-8">This is to certify that</p>
+                        <h2 className="text-7xl font-black text-gray-900 mb-6 tracking-tight">{userName}</h2>
+                        <p className="text-xl text-gray-500 mb-12 max-w-2xl leading-relaxed">
+                            has successfully completed the comprehensive training program and met all required assessment criteria for
+                        </p>
+                        <div className="bg-blue-50 px-10 py-6 rounded-3xl mb-16 border border-blue-100">
+                            <h3 className="text-4xl font-black text-blue-700">{courseTitle}</h3>
+                        </div>
                     </div>
+
+                    {/* Footer */}
+                    <div className="flex justify-between items-end mt-12 relative z-10">
+                        <div className="space-y-4">
+                            <div className="w-48 h-px bg-gray-200" />
+                            <div>
+                                <p className="text-lg font-bold text-gray-900">Education Board</p>
+                                <p className="text-xs text-gray-400 uppercase font-bold tracking-widest">SkillUp Academy</p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col items-center">
+                            <div className="w-24 h-24 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4 border-4 border-white shadow-xl">
+                                <ShieldCheck size={48} />
+                            </div>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Verified Online</p>
+                        </div>
+
+                        <div className="text-right space-y-4">
+                            <div className="w-48 h-px bg-gray-200 ml-auto" />
+                            <div>
+                                <p className="text-lg font-bold text-gray-900">{state.issuedAt}</p>
+                                <p className="text-xs text-gray-400 uppercase font-bold tracking-widest">Date of Issue</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Decorative Corner Elements */}
+                    <div className="absolute top-0 left-0 w-32 h-32 border-t-8 border-l-8 border-blue-600/20" />
+                    <div className="absolute top-0 right-0 w-32 h-32 border-t-8 border-r-8 border-blue-600/20" />
+                    <div className="absolute bottom-0 left-0 w-32 h-32 border-b-8 border-l-8 border-blue-600/20" />
+                    <div className="absolute bottom-0 right-0 w-32 h-32 border-b-8 border-r-8 border-blue-600/20" />
                 </div>
             </div>
         </div>

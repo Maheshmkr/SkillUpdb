@@ -10,6 +10,7 @@ import BadgeBuilder from "@/components/instructor/BadgeBuilder";
 import CertificateConfigForm from "@/components/instructor/CertificateConfigForm";
 import { initialCourseData } from "@/data/CourseDataModel";
 import { createCourse, updateCourse, getInstructorCourse, submitCourseForReview } from "@/api/courseApi";
+import { uploadImage } from "@/api/uploadApi";
 
 const steps = ["Basic Info", "Course Details", "Curriculum", "Badges & Certificates", "Preview & Submit"];
 
@@ -33,6 +34,7 @@ export default function InstructorCourseWizard() {
     });
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
 
     const updateField = (field, value) => {
         setCourseData(prev => ({ ...prev, [field]: value }));
@@ -338,12 +340,47 @@ export default function InstructorCourseWizard() {
 
                             <div className="space-y-2 pt-4">
                                 <label className="text-sm font-bold">Course Thumbnail</label>
-                                <div className="border-2 border-dashed border-border rounded-xl p-10 flex flex-col items-center justify-center hover:bg-secondary/30 transition-colors cursor-pointer text-center">
-                                    <div className="size-16 bg-secondary/50 rounded-full flex items-center justify-center mb-4">
-                                        <Upload className="size-8 text-muted-foreground" />
-                                    </div>
-                                    <p className="font-bold">Click to upload thumbnail</p>
-                                    <p className="text-xs text-muted-foreground mt-1">1280x720 pixels recommended (JPG, PNG)</p>
+                                <div
+                                    className="relative group border-2 border-dashed border-border rounded-xl p-4 flex flex-col items-center justify-center hover:bg-secondary/30 transition-colors cursor-pointer text-center"
+                                    onClick={() => document.getElementById('thumbnailInput').click()}
+                                >
+                                    {courseData.thumbnail ? (
+                                        <div className="relative w-full aspect-video rounded-lg overflow-hidden group">
+                                            <img src={courseData.thumbnail} alt="Thumbnail preview" className="w-full h-full object-cover" />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                                <Upload className="size-8 text-white" />
+                                                <p className="text-white font-bold ml-2">Change Image</p>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="size-16 bg-secondary/50 rounded-full flex items-center justify-center mb-4">
+                                                {uploading ? <div className="animate-spin size-8 border-4 border-primary border-t-transparent rounded-full" /> : <Upload className="size-8 text-muted-foreground" />}
+                                            </div>
+                                            <p className="font-bold">{uploading ? "Uploading..." : "Click to upload thumbnail"}</p>
+                                            <p className="text-xs text-muted-foreground mt-1">1280x720 pixels recommended (JPG, PNG)</p>
+                                        </>
+                                    )}
+                                    <input
+                                        id="thumbnailInput"
+                                        type="file"
+                                        className="hidden"
+                                        accept="image/*"
+                                        onChange={async (e) => {
+                                            const file = e.target.files[0];
+                                            if (file) {
+                                                try {
+                                                    setUploading(true);
+                                                    const res = await uploadImage(file);
+                                                    updateField('thumbnail', res.url);
+                                                } catch (err) {
+                                                    setError("Failed to upload thumbnail");
+                                                } finally {
+                                                    setUploading(false);
+                                                }
+                                            }
+                                        }}
+                                    />
                                 </div>
                             </div>
                         </div>

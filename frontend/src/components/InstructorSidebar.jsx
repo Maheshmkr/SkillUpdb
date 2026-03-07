@@ -74,8 +74,8 @@ export function InstructorSidebar() {
                         <p className="text-sm font-bold truncate">John Doe</p>
                         <p className="text-[10px] text-muted-foreground truncate">Senior Instructor</p>
                     </div>
-                    <Link to="/logout" className="text-muted-foreground hover:text-primary">
-                        <LogOut className="size-5" />
+                    <Link to="/logout" className="p-2 hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded-lg transition-colors border border-transparent hover:border-destructive/20 group" title="Logout">
+                        <LogOut className="size-5 group-hover:scale-110 transition-transform" />
                     </Link>
                 </div>
             </div>

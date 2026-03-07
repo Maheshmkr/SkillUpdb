@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { MainLayout } from "@/components/MainLayout";
-import { ChevronRight, MapPin, Linkedin, Globe, Pencil, CircleCheck, Clock, Brain, Flag, Download, Trophy } from "lucide-react";
+import { ChevronRight, MapPin, Linkedin, Globe, Pencil, CircleCheck, Clock, Brain, Flag, Download, Trophy, Sparkles } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -108,10 +109,13 @@ export default function Profile() {
                 <a href="#" className="size-10 flex items-center justify-center rounded-lg bg-card border border-border text-primary hover:bg-primary hover:text-primary-foreground transition-all shadow-sm">
                   <Globe className="size-5" />
                 </a>
-                <button className="px-6 py-2.5 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-all shadow-md flex items-center gap-2">
+                <Link
+                  to="/profile/edit"
+                  className="px-6 py-2.5 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-all shadow-md flex items-center gap-2"
+                >
                   <Pencil className="size-4" />
                   Edit Profile
-                </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -174,30 +178,63 @@ export default function Profile() {
             ))}
           </div>
 
-          {/* Certificates */}
+          {/* Badges & Certificates */}
           <section className="mb-12">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold">Certificates Earned</h2>
+              <h2 className="text-xl font-bold">Achievements & Certificates</h2>
               <button className="text-primary text-sm font-semibold hover:underline">View All</button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {userCertificates.length > 0 ? userCertificates.map((cert, idx) => (
-                <div key={idx} className="group bg-card rounded-xl border border-border overflow-hidden hover:shadow-md transition-all">
-                  <div className="relative aspect-video overflow-hidden">
-                    <img src={cert.course.thumbnail || cert.course.image || "/assets/course-placeholder.jpg"} alt={cert.course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Download className="size-8 text-white" />
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-bold text-sm mb-1">{cert.course.title}</h3>
-                    <p className="text-xs text-muted-foreground">{new Date(cert.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</p>
-                  </div>
-                </div>
-              )) : (
+              {/* Combine and Sort Achievements */}
+              {[
+                ...(user.certificates || []).map(c => ({ ...c, type: 'certificate' })),
+                ...(user.badges || []).map(b => ({ ...b, type: 'badge' }))
+              ]
+                .sort((a, b) => new Date(b.date || b.earnedAt) - new Date(a.date || a.earnedAt))
+                .map((item, idx) => {
+                  const isCert = item.type === 'certificate';
+                  const course = item.course;
+                  const date = item.date || item.earnedAt;
+
+                  return (
+                    <Link
+                      key={idx}
+                      to={isCert ? `/learn/${course?._id || course?.id || ""}/achievements` : "#"}
+                      className={`group bg-card rounded-xl border border-border overflow-hidden hover:shadow-md transition-all block ${!isCert && "cursor-default"}`}
+                    >
+                      <div className="relative aspect-video overflow-hidden bg-secondary/10">
+                        <img
+                          src={isCert ? (course?.thumbnail || course?.image || "/assets/course-placeholder.jpg") : (item.icon || "/assets/badge-placeholder.png")}
+                          alt={isCert ? (course?.title || "Certificate") : item.name}
+                          className={`w-full h-full object-cover transition-transform duration-500 ${isCert ? "group-hover:scale-105" : "p-4 object-contain"}`}
+                        />
+                        <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                          <div className="flex flex-col items-center gap-2">
+                            {isCert ? <Trophy className="size-8" /> : <Sparkles className="size-8" />}
+                            <span className="text-[10px] font-bold uppercase tracking-widest">{isCert ? "View Certificate" : "Badge Earned"}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-4 border-t border-border/50">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-tighter ${isCert ? "bg-success/10 text-success" : "bg-warning/10 text-warning"}`}>
+                            {isCert ? "Certificate" : "Badge"}
+                          </span>
+                          <p className="text-[10px] text-muted-foreground ml-auto">
+                            {date ? new Date(date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Recently'}
+                          </p>
+                        </div>
+                        <h3 className="font-bold text-sm line-clamp-1">{isCert ? (course?.title || "SkillUp Certificate") : item.name}</h3>
+                        {!isCert && <p className="text-[10px] text-muted-foreground mt-1 line-clamp-1">{item.description}</p>}
+                      </div>
+                    </Link>
+                  );
+                })}
+
+              {(user.certificates || []).length === 0 && (!user.badges || user.badges.length === 0) && (
                 <div className="col-span-3 py-10 text-center bg-secondary/20 rounded-xl border border-dashed border-border">
                   <Trophy className="size-10 mx-auto mb-4 text-muted-foreground opacity-20" />
-                  <p className="text-muted-foreground">No certificates earned yet. Complete a course to earn one!</p>
+                  <p className="text-muted-foreground">No achievements yet. Keep learning to earn badges and certificates!</p>
                 </div>
               )}
             </div>

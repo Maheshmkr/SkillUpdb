@@ -99,6 +99,40 @@ export default function CertificateConfigForm({ config, setConfig, modules }) {
                                     ))}
                                 </div>
                             )}
+
+                            <div className="pt-6 border-t border-gray-100 space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                                            Final Exam / Test
+                                        </label>
+                                        <select
+                                            className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-600"
+                                            value={config.finalTestId || ""}
+                                            onChange={(e) => updateConfig('finalTestId', e.target.value)}
+                                        >
+                                            <option value="">No Final Test (Completion Only)</option>
+                                            {modules.flatMap(m => m.lessons).filter(l => l.type === 'quiz').map(q => (
+                                                <option key={q.id} value={q.id}>{q.title}</option>
+                                            ))}
+                                        </select>
+                                        <p className="text-[10px] text-gray-400">If selected, certificate is only issued after passing this quiz.</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-gray-900">
+                                            Minimum Passing Score (%)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="100"
+                                            className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:border-blue-600"
+                                            value={config.minimumScore || 80}
+                                            onChange={(e) => updateConfig('minimumScore', parseInt(e.target.value))}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="pt-6 border-t border-gray-100">

@@ -7,8 +7,12 @@ import {
     Trophy, ArrowRight, Star, Clock, Award
 } from "lucide-react";
 import { getCourseById } from "@/api/courseApi";
-import { getUserProgress, updateCourseProgress } from "@/api/userApi";
+import { getUserProgress, updateCourseProgress, updateProfile, confirmCertificateName } from "@/api/userApi";
 import { QuizAttempt, QuizResult } from "@/components/learning/QuizComponents";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 const getEmbedUrl = (url) => {
     if (!url) return null;
@@ -19,6 +23,14 @@ const getEmbedUrl = (url) => {
     return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
 };
 
+const getInitials = (name) => {
+    if (!name) return "MS";
+    const parts = name.split(' ').filter(Boolean);
+    if (parts.length === 0) return "MS";
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
+
 export default function LearningPlayer() {
     const { courseId } = useParams();
     const navigate = useNavigate();
@@ -26,6 +38,9 @@ export default function LearningPlayer() {
     const [activeLesson, setActiveLesson] = useState(null);
     const [openModules, setOpenModules] = useState({ 0: true });
     const [quizState, setQuizState] = useState(null); // { status: 'idle' | 'attempting' | 'finished', result: null }
+    const [showNameModal, setShowNameModal] = useState(false);
+    const [certName, setCertName] = useState("");
+    const [hasShownModal, setHasShownModal] = useState(false);
 
     const { data: course, isLoading: loadingCourse } = useQuery({
         queryKey: ['course', courseId],
@@ -42,6 +57,56 @@ export default function LearningPlayer() {
     const completedLessons = progressData?.completedLessons || []; // Assume this is an array of lesson IDs
     const moduleGrades = progressData?.moduleGrades || {}; // { [moduleId]: percentage }
 
+    const [userInfo, setUserInfo] = useState(() => JSON.parse(localStorage.getItem('userInfo') || '{}'));
+
+    // Trigger name confirmation when 100% complete and not yet confirmed
+    useEffect(() => {
+        if (progressData?.progress === 100 && !progressData?.certificateNameConfirmed && !hasShownModal) {
+            setCertName(userInfo.name || "");
+            setShowNameModal(true);
+            setHasShownModal(true);
+        }
+    }, [progressData?.progress, progressData?.certificateNameConfirmed, hasShownModal, userInfo.name]);
+
+    const confirmPersistMutation = useMutation({
+        mutationFn: () => confirmCertificateName(courseId),
+        onSuccess: () => {
+            queryClient.invalidateQueries(['progress', courseId]);
+            setShowNameModal(false);
+            toast.success("Name confirmed!");
+        }
+    });
+
+    const updateNameMutation = useMutation({
+        mutationFn: (newName) => updateProfile({ name: newName }),
+        onSuccess: (data) => {
+            // Update local storage
+            const newUserInfo = { ...userInfo, name: data.name };
+            localStorage.setItem('userInfo', JSON.stringify(newUserInfo));
+            setUserInfo(newUserInfo); // Trigger immediate re-render
+            queryClient.invalidateQueries(['profile']);
+            toast.success("Name updated for your certificate!");
+
+            // Now persist the confirmation flag
+            confirmPersistMutation.mutate();
+        },
+        onError: () => {
+            toast.error("Failed to update name. Please try again.");
+        }
+    });
+
+    const handleConfirmName = () => {
+        if (!certName.trim()) {
+            toast.error("Please enter a valid name.");
+            return;
+        }
+        if (certName !== userInfo.name) {
+            updateNameMutation.mutate(certName);
+        } else {
+            confirmPersistMutation.mutate();
+        }
+    };
+
     useEffect(() => {
         if (modules.length > 0 && !activeLesson) {
             setActiveLesson(modules[0].lessons[0]);
@@ -49,7 +114,7 @@ export default function LearningPlayer() {
     }, [modules, activeLesson]);
 
     const completeMutation = useMutation({
-        mutationFn: (lessonId) => updateCourseProgress({ courseId, lessonId, status: 'completed' }),
+        mutationFn: ({ lessonId, score }) => updateCourseProgress({ courseId, lessonId, score, status: 'completed' }),
         onSuccess: () => queryClient.invalidateQueries(['progress', courseId])
     });
 
@@ -69,7 +134,7 @@ export default function LearningPlayer() {
 
     const handleLessonComplete = () => {
         if (activeLesson && !completedLessons.includes(activeLesson._id)) {
-            completeMutation.mutate(activeLesson._id, {
+            completeMutation.mutate({ lessonId: activeLesson._id }, {
                 onSuccess: () => {
                     // Automatically go to next lesson after marking as done
                     setTimeout(goToNextLesson, 500);
@@ -84,8 +149,8 @@ export default function LearningPlayer() {
     const handleQuizFinish = (result) => {
         setQuizState({ status: 'finished', result });
         if (result.isPassed && activeLesson) {
-            // Mark quiz as completed in backend if passed
-            completeMutation.mutate(activeLesson._id);
+            // Mark quiz as completed in backend if passed, AND pass the score
+            completeMutation.mutate({ lessonId: activeLesson._id, score: result.score });
         }
     };
 
@@ -116,12 +181,12 @@ export default function LearningPlayer() {
                     <h1 className="text-sm font-bold text-gray-900 truncate max-w-sm">{course.title}</h1>
                 </div>
                 <div className="flex items-center gap-6">
-                    {progressData?.progress >= 100 && (
+                    {progressData?.isCompleted && (
                         <button
                             className="hidden lg:flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-all shadow-md shadow-blue-100"
-                            onClick={() => window.open(`https://skillup-certificates.s3.amazonaws.com/${courseId}.pdf`, '_blank')}
+                            onClick={() => navigate('/achievements')}
                         >
-                            <Award size={14} /> Download Certificate
+                            <Award size={14} /> View Certificate
                         </button>
                     )}
                     <div className="hidden md:flex flex-col items-end">
@@ -137,7 +202,7 @@ export default function LearningPlayer() {
                         <Bell size={20} />
                     </button>
                     <div className="w-8 h-8 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-700 text-xs font-bold">
-                        MS
+                        {getInitials(userInfo.name)}
                     </div>
                 </div>
             </header>
@@ -257,8 +322,8 @@ export default function LearningPlayer() {
                                             title: activeLesson.title,
                                             passPercentage: activeLesson.passPercentage,
                                             questions: activeLesson.questions || [
-                                                { questionText: 'What is the primary benefit of this module?', options: ['Option A', 'Option B', 'Option C', 'Option D'], correctAnswer: 0 },
-                                                { questionText: 'How do you implement the core pattern?', options: ['Step 1', 'Step 2', 'Step 3', 'Step 4'], correctAnswer: 1 }
+                                                { question: 'What is the primary benefit of this module?', options: ['Option A', 'Option B', 'Option C', 'Option D'], correctAnswer: 0 },
+                                                { question: 'How do you implement the core pattern?', options: ['Step 1', 'Step 2', 'Step 3', 'Step 4'], correctAnswer: 1 }
                                             ]
                                         }}
                                         onFinish={handleQuizFinish}
@@ -349,9 +414,9 @@ export default function LearningPlayer() {
                                     </div>
                                     <span className="text-[10px] font-bold">{progressData?.progress || 0}%</span>
                                 </div>
-                                {progressData?.progress >= 100 && (
+                                {progressData?.isCompleted && (
                                     <button
-                                        onClick={() => window.open(`https://skillup-certificates.s3.amazonaws.com/${courseId}.pdf`, '_blank')}
+                                        onClick={() => navigate('/achievements')}
                                         className="mt-4 w-full py-2 bg-white text-blue-600 rounded-lg text-[10px] font-bold hover:bg-blue-50 transition-all shadow-sm"
                                     >
                                         Download Now
@@ -362,6 +427,48 @@ export default function LearningPlayer() {
                     </div>
                 </aside>
             </div>
+
+            {/* Name Confirmation Modal */}
+            <Dialog open={showNameModal} onOpenChange={setShowNameModal}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <Trophy className="text-yellow-500" size={20} />
+                            Course Completed!
+                        </DialogTitle>
+                        <DialogDescription>
+                            Congratulations on finishing <strong>{course?.title}</strong>!
+                            Please confirm your full name for the certificate.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">
+                            Full Name on Certificate
+                        </label>
+                        <Input
+                            value={certName}
+                            onChange={(e) => setCertName(e.target.value)}
+                            placeholder="Enter your full name"
+                            className="font-semibold text-lg"
+                        />
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="secondary"
+                            onClick={() => setShowNameModal(false)}
+                        >
+                            Later
+                        </Button>
+                        <Button
+                            className="bg-blue-600 hover:bg-blue-700"
+                            onClick={handleConfirmName}
+                            disabled={updateNameMutation.isPending}
+                        >
+                            {updateNameMutation.isPending ? "Saving..." : "Confirm & View Certificate"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
