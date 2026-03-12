@@ -17,55 +17,79 @@ const importData = async () => {
 
         console.log('🌱 Starting data import...');
 
-        // 1. Create Instructor first with fixed ID
-        const sarahId = "642c1b9b1c1c1c1c1c1c1c1c";
+        // 1. Create Users
+        console.log('👥 Creating users...');
+        const instructorId = "642c1b9b1c1c1c1c1c1c1c1a"; // Fixed ID for instructor@skillup.com
         const maheshId = "642c1b9b1c1c1c1c1c1c1c1d";
 
-        const instructorData = usersData.find(u => u.role === 'instructor') || usersData[0];
-        const instructorUser = await User.create({
-            ...instructorData,
-            _id: sarahId
-        });
-        console.log(`✅ Instructor created: ${instructorUser.email}`);
+        const createdUsers = [];
+        for (const userData of usersData) {
+            let userToCreate = { ...userData };
+            if (userToCreate.email === 'instructor@skillup.com') {
+                userToCreate._id = instructorId;
+            } else if (userToCreate.email === 'mahesh@gmail.com') {
+                userToCreate._id = maheshId;
+            }
+            const user = await User.create(userToCreate);
+            createdUsers.push(user);
+            console.log(`✅ User created: ${user.email}`);
+        }
+
+        const instructorUser = createdUsers.find(u => u.email === 'instructor@skillup.com');
 
         // 2. Map instructor to courses and import
-        const sampleCourses = coursesData.map((course) => ({
-            ...course,
-            instructorId: instructorUser._id,
-            instructor: instructorUser.name
-        }));
+        console.log('📚 Importing courses...');
+        const sampleCourses = coursesData.map((course, index) => {
+            const updatedCourse = {
+                ...course,
+                instructorId: instructorUser._id,
+                instructor: instructorUser.name
+            };
+
+            // Diversify demo data for instructor@skillup.com
+            if (index === 0) {
+                updatedCourse.status = 'Published';
+                updatedCourse.students = 1250;
+            } else if (index === 1) {
+                updatedCourse.status = 'Draft';
+                updatedCourse.students = 0;
+            } else if (index === 2) {
+                updatedCourse.status = 'Pending Review';
+                updatedCourse.students = 0;
+            } else if (index === 3) {
+                updatedCourse.status = 'Published';
+                updatedCourse.students = 850;
+            }
+
+            return updatedCourse;
+        });
+
         const createdCourses = await Course.insertMany(sampleCourses);
-        console.log(`✅ ${createdCourses.length} courses created`);
+        console.log(`✅ ${createdCourses.length} courses created for ${instructorUser.email}`);
 
         const uiuxCourse = createdCourses.find(c => c.title.includes('UI/UX'));
 
-        // 3. Create other users with enrollment if applicable
-        for (const userData of usersData) {
-            if (userData.email === instructorUser.email) continue;
+        // 3. Setup enrollment for Mahesh
+        const maheshUser = createdUsers.find(u => u.email === 'mahesh@gmail.com');
+        if (maheshUser && uiuxCourse) {
+            console.log(`📘 Enrolling ${maheshUser.email} in ${uiuxCourse.title}`);
+            const lessons = uiuxCourse.modules[0]?.lessons || [];
 
-            const userToCreate = { ...userData };
-
-            if (userToCreate.email === 'mahesh@gmail.com') {
-                userToCreate._id = maheshId;
-                if (uiuxCourse) {
-                    console.log(`📘 Enrolling ${userToCreate.email} in ${uiuxCourse.title}`);
-                    const lessons = uiuxCourse.modules[0]?.lessons || [];
-
-                    userToCreate.enrolledCourses = [{
+            await User.findByIdAndUpdate(maheshUser._id, {
+                $set: {
+                    enrolledCourses: [{
                         course: uiuxCourse._id,
                         progress: 100,
                         completedLessons: lessons.map(l => l.title || l.id),
                         isCompleted: true,
                         lastAccessed: Date.now()
-                    }];
-
-                    userToCreate.certificates = [{
+                    }],
+                    certificates: [{
                         course: uiuxCourse._id,
                         date: new Date('2026-03-01'),
                         pdfUrl: `/uploads/certificates/${maheshId}-${uiuxCourse._id}.pdf`
-                    }];
-
-                    userToCreate.badges = [
+                    }],
+                    badges: [
                         {
                             course: uiuxCourse._id,
                             name: "Curriculum Starter",
@@ -80,21 +104,17 @@ const importData = async () => {
                             icon: "/uploads/badges/pro.png",
                             earnedAt: new Date('2026-03-01')
                         }
-                    ];
-
-                    userToCreate.stats = {
+                    ],
+                    stats: {
                         coursesCompleted: 1,
                         hoursLearned: 32,
                         skillsMastered: 12
-                    };
-
-                    // Update Course student count
-                    await Course.findByIdAndUpdate(uiuxCourse._id, { $inc: { students: 1 } });
+                    }
                 }
-            }
+            });
 
-            await User.create(userToCreate);
-            console.log(`✅ User created: ${userToCreate.email}`);
+            // Update Course student count
+            await Course.findByIdAndUpdate(uiuxCourse._id, { $inc: { students: 1 } });
         }
 
         console.log('🚀 Data Imported Successfully!');

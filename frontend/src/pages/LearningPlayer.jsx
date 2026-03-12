@@ -275,12 +275,27 @@ export default function LearningPlayer() {
                         {activeLesson?.type === 'video' && (
                             <div className="max-w-4xl mx-auto">
                                 <div className="aspect-video bg-black rounded-xl overflow-hidden shadow-2xl mb-8">
-                                    <iframe
-                                        src={getEmbedUrl(activeLesson.contentUrl)}
-                                        className="w-full h-full"
-                                        allowFullScreen
-                                        title={activeLesson.title}
-                                    />
+                                    {activeLesson.contentUrl ? (
+                                        (activeLesson.contentUrl.includes('youtube.com') || activeLesson.contentUrl.includes('youtu.be')) ? (
+                                            <iframe
+                                                src={getEmbedUrl(activeLesson.contentUrl)}
+                                                className="w-full h-full"
+                                                allowFullScreen
+                                                title={activeLesson.title}
+                                            />
+                                        ) : (
+                                            <video
+                                                src={activeLesson.contentUrl}
+                                                controls
+                                                className="w-full h-full"
+                                            />
+                                        )
+                                    ) : (
+                                        <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 space-y-4">
+                                            <Play size={48} className="opacity-20" />
+                                            <p className="text-sm font-medium">No video content source available.</p>
+                                        </div>
+                                    )}
                                 </div>
                                 <h2 className="text-2xl font-bold text-gray-900 mb-4">{activeLesson.title}</h2>
                                 <div className="prose prose-blue max-w-none text-gray-600">

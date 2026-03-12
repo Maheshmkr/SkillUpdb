@@ -35,8 +35,19 @@ export default function LearnerCoursePreview() {
         }
     };
 
+    const getEmbedUrl = (url) => {
+        if (!url) return null;
+        if (url.includes('youtube.com/embed/')) return url;
+        let videoId = null;
+        if (url.includes('youtube.com/watch?v=')) videoId = url.split('v=')[1].split('&')[0];
+        else if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
+        return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+    };
+
     // --- RENDER: AFTER ENROLL (Learning Player) ---
     if (mode === 'after') {
+        const isYouTube = activeLesson?.contentUrl?.includes('youtube.com') || activeLesson?.contentUrl?.includes('youtu.be');
+
         return (
             <div className="flex flex-col h-screen bg-background">
                 {/* Top Bar */}
@@ -64,17 +75,26 @@ export default function LearnerCoursePreview() {
                     {/* Player Area (Left/Center) */}
                     <div className="flex-1 overflow-y-auto p-6 md:p-10 bg-secondary/10">
                         <div className="max-w-4xl mx-auto space-y-6">
-                            {/* Video Player Placeholder */}
+                            {/* Video Player Area */}
                             <div className="aspect-video bg-black rounded-xl relative shadow-2xl overflow-hidden group">
                                 {activeLesson?.type === 'video' ? (
                                     <div className="absolute inset-0 flex items-center justify-center bg-black">
                                         {activeLesson?.contentUrl ? (
-                                            <video
-                                                controls
-                                                src={activeLesson.contentUrl}
-                                                className="w-full h-full"
-                                                controlsList="nodownload"
-                                            />
+                                            isYouTube ? (
+                                                <iframe
+                                                    src={getEmbedUrl(activeLesson.contentUrl)}
+                                                    className="w-full h-full"
+                                                    allowFullScreen
+                                                    title={activeLesson.title}
+                                                />
+                                            ) : (
+                                                <video
+                                                    controls
+                                                    src={activeLesson.contentUrl}
+                                                    className="w-full h-full"
+                                                    controlsList="nodownload"
+                                                />
+                                            )
                                         ) : (
                                             <div className="text-center text-white space-y-4">
                                                 <Play className="size-20 fill-white opacity-80" />

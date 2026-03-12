@@ -66,13 +66,15 @@ export function InstructorSidebar() {
             <div className="p-6 border-t border-border">
                 <div className="flex items-center gap-3">
                     <div className="size-10 rounded-full bg-secondary overflow-hidden border-2 border-primary/20">
-                        <div className="w-full h-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
-                            JD
+                        <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+                            {JSON.parse(localStorage.getItem('userInfo') || '{}').name?.split(' ').map(n => n[0]).join('').toUpperCase() || "JD"}
                         </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold truncate">John Doe</p>
-                        <p className="text-[10px] text-muted-foreground truncate">Senior Instructor</p>
+                        <p className="text-sm font-bold truncate">
+                            {JSON.parse(localStorage.getItem('userInfo') || '{}').name || "Instructor"}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Instructor</p>
                     </div>
                     <Link to="/logout" className="p-2 hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded-lg transition-colors border border-transparent hover:border-destructive/20 group" title="Logout">
                         <LogOut className="size-5 group-hover:scale-110 transition-transform" />

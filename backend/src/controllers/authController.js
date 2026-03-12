@@ -50,6 +50,7 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
+    console.log("hello")
     console.log(`🔐 Login attempt for: ${email}`);
 
     // Check for user email
@@ -58,6 +59,7 @@ const loginUser = asyncHandler(async (req, res) => {
     if (!user) {
         console.log(`❌ No user found with email: ${email}`);
     } else {
+
         const isMatch = await user.matchPassword(password);
         console.log(`👤 User found: ${user.name}, Password match: ${isMatch}`);
     }

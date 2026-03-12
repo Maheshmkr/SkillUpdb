@@ -25,16 +25,16 @@ const courses = [
                 id: "mod-web-1",
                 title: "Frontend Foundations",
                 lessons: [
-                    { id: "les-web-1-1", title: "React Components & Hooks", type: "video", duration: "1h 15m" },
-                    { id: "les-web-1-2", title: "State Management with Redux", type: "video", duration: "1h 45m" }
+                    { id: "les-web-1-1", title: "React Components & Hooks", type: "video", duration: "1h 15m", contentUrl: "https://www.youtube.com/watch?v=Ke90Tje7VS0" },
+                    { id: "les-web-1-2", title: "State Management with Redux", type: "video", duration: "1h 45m", contentUrl: "https://www.youtube.com/watch?v=48S8N0fT3lQ" }
                 ]
             },
             {
                 id: "mod-web-2",
                 title: "Backend Development",
                 lessons: [
-                    { id: "les-web-2-1", title: "Intro to Node.js & NPM", type: "video", duration: "1h 00m" },
-                    { id: "les-web-2-2", title: "Building REST APIs", type: "video", duration: "2h 15m" }
+                    { id: "les-web-2-1", title: "Intro to Node.js & NPM", type: "video", duration: "1h 00m", contentUrl: "https://www.youtube.com/watch?v=ENrzD9HAZK4" },
+                    { id: "les-web-2-2", title: "Building REST APIs", type: "video", duration: "2h 15m", contentUrl: "https://www.youtube.com/watch?v=fgTGADljAeg" }
                 ]
             },
             {
@@ -87,16 +87,16 @@ const courses = [
                 id: "mod-ux-1",
                 title: "Design Principles",
                 lessons: [
-                    { id: "les-ux-1-1", title: "Visual Hierarchy & Typography", type: "video", duration: "1h 30m" },
-                    { id: "les-ux-1-2", title: "Color Theory & Applications", type: "video", duration: "1h 10m" }
+                    { id: "les-ux-1-1", title: "Visual Hierarchy & Typography", type: "video", duration: "1h 30m", contentUrl: "https://www.youtube.com/watch?v=zHAa-v46n2E" },
+                    { id: "les-ux-1-2", title: "Color Theory & Applications", type: "video", duration: "1h 10m", contentUrl: "https://www.youtube.com/watch?v=N_8t_Httnsc" }
                 ]
             },
             {
                 id: "mod-ux-2",
                 title: "Prototyping",
                 lessons: [
-                    { id: "les-ux-2-1", title: "Advanced Figma Prototyping", type: "video", duration: "2h 00m" },
-                    { id: "les-ux-2-2", title: "Component Systems", type: "video", duration: "1h 45m" }
+                    { id: "les-ux-2-1", title: "Advanced Figma Prototyping", type: "video", duration: "2h 00m", contentUrl: "https://www.youtube.com/watch?v=3Wub79mKpx4" },
+                    { id: "les-ux-2-2", title: "Component Systems", type: "video", duration: "1h 45m", contentUrl: "https://www.youtube.com/watch?v=pAnVat-f-c8" }
                 ]
             },
             {
@@ -149,8 +149,8 @@ const courses = [
                 id: "mod-ds-1",
                 title: "Python for Data Science",
                 lessons: [
-                    { id: "les-ds-1-1", title: "Numpy & Pandas Internals", type: "video", duration: "2h 30m" },
-                    { id: "les-ds-1-2", title: "Vizualization Techniques", type: "video", duration: "1h 50m" }
+                    { id: "les-ds-1-1", title: "Numpy & Pandas Internals", type: "video", duration: "2h 30m", contentUrl: "https://www.youtube.com/watch?v=P67CByI4tT4" },
+                    { id: "les-ds-1-2", title: "Vizualization Techniques", type: "video", duration: "1h 50m", contentUrl: "https://www.youtube.com/watch?v=UO98lJQ3QGI" }
                 ]
             },
             {
@@ -203,8 +203,8 @@ const courses = [
                 id: "mod-mkt-1",
                 title: "SEO Foundations",
                 lessons: [
-                    { id: "les-mkt-1-1", title: "Keyword Research Basics", type: "video", duration: "1h 20m" },
-                    { id: "les-mkt-1-2", title: "On-page Optimization", type: "video", duration: "1h 45m" }
+                    { id: "les-mkt-1-1", title: "Keyword Research Basics", type: "video", duration: "1h 20m", contentUrl: "https://www.youtube.com/watch?v=5_S_XNq_Osw" },
+                    { id: "les-mkt-1-2", title: "On-page Optimization", type: "video", duration: "1h 45m", contentUrl: "https://www.youtube.com/watch?v=kY6f0h_6v98" }
                 ]
             },
             {
@@ -257,8 +257,8 @@ const courses = [
                 id: "mod-fin-1",
                 title: "Excel Mastery",
                 lessons: [
-                    { id: "les-fin-1-1", title: "Financial Formulas", type: "video", duration: "1h 15m" },
-                    { id: "les-fin-1-2", title: "Dynamic Tables", type: "video", duration: "1h 30m" }
+                    { id: "les-fin-1-1", title: "Financial Formulas", type: "video", duration: "1h 15m", contentUrl: "https://www.youtube.com/watch?v=xT7L_vGZ4A0" },
+                    { id: "les-fin-1-2", title: "Dynamic Tables", type: "video", duration: "1h 30m", contentUrl: "https://www.youtube.com/watch?v=0_u6uB28WqE" }
                 ]
             },
             {
@@ -311,8 +311,8 @@ const courses = [
                 id: "mod-aws-1",
                 title: "AWS Core Services",
                 lessons: [
-                    { id: "les-aws-1-1", title: "IAM & Security", type: "video", duration: "1h 45m" },
-                    { id: "les-aws-1-2", title: "EC2 Essentials", type: "video", duration: "2h 10m" }
+                    { id: "les-aws-1-1", title: "IAM & Security", type: "video", duration: "1h 45m", contentUrl: "https://www.youtube.com/watch?v=3hLmDS179YE" },
+                    { id: "les-aws-1-2", title: "EC2 Essentials", type: "video", duration: "2h 10m", contentUrl: "https://www.youtube.com/watch?v=RrK_3L3I9P0" }
                 ]
             },
             {
@@ -365,7 +365,7 @@ const courses = [
                 id: "mod-sec-1",
                 title: "Pentesting Intro",
                 lessons: [
-                    { id: "les-sec-1-1", title: "Network Mapping", type: "video", duration: "1h 15m" }
+                    { id: "les-sec-1-1", title: "Network Mapping", type: "video", duration: "1h 15m", contentUrl: "https://www.youtube.com/watch?v=nzj7Wg46lsA" }
                 ]
             },
             {
@@ -409,7 +409,7 @@ const courses = [
                 id: "mod-pm-1",
                 title: "Agile Frameworks",
                 lessons: [
-                    { id: "les-pm-1-1", title: "Scrum & Kanban", type: "video", duration: "1h 30m" }
+                    { id: "les-pm-1-1", title: "Scrum & Kanban", type: "video", duration: "1h 30m", contentUrl: "https://www.youtube.com/watch?v=9S57X9H6c44" }
                 ]
             },
             {
@@ -454,7 +454,7 @@ const courses = [
                 id: "mod-ai-1",
                 title: "Neural Networks",
                 lessons: [
-                    { id: "les-ai-1-1", title: "Intro to PyTorch", type: "video", duration: "2h 00m" }
+                    { id: "les-ai-1-1", title: "Intro to PyTorch", type: "video", duration: "2h 00m", contentUrl: "https://www.youtube.com/watch?v=rfscVS0vtbw" }
                 ]
             },
             {
@@ -499,7 +499,7 @@ const courses = [
                 id: "mod-gh-1",
                 title: "Viral Loops",
                 lessons: [
-                    { id: "les-gh-1-1", title: "Inbound Referral Systems", type: "video", duration: "1h 10m" }
+                    { id: "les-gh-1-1", title: "Inbound Referral Systems", type: "video", duration: "1h 10m", contentUrl: "https://www.youtube.com/watch?v=Z_KxpulYOKU" }
                 ]
             },
             {

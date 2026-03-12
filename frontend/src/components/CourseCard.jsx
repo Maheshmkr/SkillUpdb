@@ -88,7 +88,7 @@ const CourseCard = ({ course }) => {
 
         <div className="mt-auto">
           <p className="text-gray-500 text-xs mb-2 font-medium">
-            {instructor?.name || 'SkillUp Instructor'}
+            {instructor?.name || instructor || 'SkillUp Instructor'}
           </p>
 
           <div className="flex items-center gap-1 mb-2">

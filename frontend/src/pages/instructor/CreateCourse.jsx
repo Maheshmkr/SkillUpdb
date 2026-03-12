@@ -440,16 +440,18 @@ export default function CreateCourse() {
                                         <section className="space-y-6 pt-6 border-t border-border">
                                             <h3 className="text-2xl font-bold">About the Instructor</h3>
                                             <div className="flex gap-6">
-                                                <div className="size-24 rounded-2xl bg-secondary flex items-center justify-center text-primary font-bold text-3xl shrink-0">MT</div>
+                                                <div className="size-24 rounded-2xl bg-secondary flex items-center justify-center text-primary font-bold text-3xl shrink-0">
+                                                    {JSON.parse(localStorage.getItem('userInfo') || '{}').name?.split(' ').map(n => n[0]).join('').toUpperCase() || "JD"}
+                                                </div>
                                                 <div className="space-y-2">
-                                                    <h4 className="text-xl font-bold">Sarah Jenkins</h4>
+                                                    <h4 className="text-xl font-bold">{JSON.parse(localStorage.getItem('userInfo') || '{}').name || "Instructor"}</h4>
                                                     <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Expert Instructor in {formData.category}</p>
                                                     <div className="flex gap-4 text-sm font-bold pt-1">
                                                         <div className="flex items-center gap-1"><Star className="size-3 text-warning fill-warning" /> 4.9 Rating</div>
                                                         <div className="flex items-center gap-1"><Users className="size-3 text-primary" /> 156,000+ Students</div>
                                                     </div>
                                                     <p className="text-muted-foreground text-sm leading-relaxed max-w-xl pt-2">
-                                                        Marcus is a design veteran with over 15 years of experience leading UI/UX teams at Fortune 500 companies. He focuses on bridging the gap between aesthetic beauty and functional business requirements.
+                                                        Passionate educator with years of experience leading teams at top companies. Focusing on bridging the gap between aesthetic beauty and functional business requirements.
                                                     </p>
                                                 </div>
                                             </div>

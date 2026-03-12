@@ -68,7 +68,7 @@ export default function CourseDetailBeforeEnroll() {
                                     <span className="text-gray-400 underline">(1,240 reviews)</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <span className="font-bold">{course.instructor?.name || 'SkillUp Instructor'}</span>
+                                    <span className="font-bold">{course.instructor?.name || course.instructor || 'SkillUp Instructor'}</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-gray-400">
                                     <Globe size={16} />

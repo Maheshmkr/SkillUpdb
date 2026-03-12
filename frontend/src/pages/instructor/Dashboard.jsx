@@ -24,7 +24,7 @@ export default function InstructorDashboard() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">Instructor Dashboard</h1>
-                        <p className="text-muted-foreground">Welcome back, John! Here's what's happening today.</p>
+                        <p className="text-muted-foreground">Welcome back, {JSON.parse(localStorage.getItem('userInfo') || '{}').name?.split(' ')[0] || 'Instructor'}! Here's what's happening today.</p>
                     </div>
                     <Link to="/instructor/courses/new" className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
                         <Plus className="size-5" />

@@ -5,8 +5,8 @@ import { Link } from "react-router-dom";
 
 export default function InstructorProfile() {
     const [profile, setProfile] = React.useState({
-        name: "John Doe",
-        email: "instructor@skillup.com",
+        name: "",
+        email: "",
         title: "Senior Software Engineer & Educator",
         location: "San Francisco, CA",
         about: "Passionate educator with 10+ years of experience in software development and teaching. Specialized in web development, cloud architecture, and modern JavaScript frameworks.",
@@ -59,8 +59,9 @@ export default function InstructorProfile() {
                                     <input
                                         type="text"
                                         value={profile.name}
-                                        onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                                        className="w-full text-2xl font-bold bg-background border border-border rounded-lg px-4 py-2"
+                                        disabled
+                                        className="w-full text-2xl font-bold bg-secondary/50 border border-border rounded-lg px-4 py-2 cursor-not-allowed opacity-70"
+                                        title="Name cannot be changed"
                                     />
                                     <input
                                         type="text"
@@ -79,7 +80,7 @@ export default function InstructorProfile() {
                             <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                                 <div className="flex items-center gap-2">
                                     <Mail className="size-4" />
-                                    {profile.email}
+                                    <span title="Email cannot be changed">{profile.email}</span>
                                 </div>
                                 {isEditing ? (
                                     <input

@@ -274,7 +274,7 @@ export default function CourseDetail() {
                   <div className="flex flex-col md:flex-row gap-8 bg-card border border-border p-8 rounded-2xl shadow-sm">
                     <div className="shrink-0 flex flex-col items-center">
                       <div className="w-32 h-32 rounded-2xl overflow-hidden bg-secondary flex items-center justify-center text-primary font-bold text-3xl mb-4 border-2 border-primary/10 shadow-inner">
-                        {course.instructor?.substring(0, 2).toUpperCase() || "MT"}
+                        {(course.instructor?.name || course.instructor)?.split(' ').map(n => n[0]).join('').toUpperCase() || "SI"}
                       </div>
                       <div className="space-y-2 w-full">
                         <div className="flex items-center gap-2 text-sm font-bold bg-secondary/50 px-3 py-2 rounded-lg justify-center">
@@ -288,7 +288,7 @@ export default function CourseDetail() {
                       </div>
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-2xl font-bold text-primary mb-1">{course.instructor}</h3>
+                      <h3 className="text-2xl font-bold text-primary mb-1">{course.instructor?.name || course.instructor}</h3>
                       <p className="text-muted-foreground mb-6 font-bold uppercase tracking-widest text-xs opacity-70">
                         Expert Instructor in {course.category}
                       </p>
