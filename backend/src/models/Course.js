@@ -1,32 +1,5 @@
 const mongoose = require('mongoose');
 
-const lessonSchema = mongoose.Schema({
-    id: String,
-    title: { type: String, required: true },
-    type: { type: String, enum: ['video', 'article', 'quiz'], default: 'video' },
-    duration: String,
-    contentUrl: String, // Video URL or article URL
-    file: {
-        name: String,
-        size: Number,
-        fileType: String
-    },
-    description: String, // Lesson description shown in preview
-    questions: [
-        {
-            id: String,
-            question: String,
-            options: [String],
-            correctAnswer: Number
-        }
-    ]
-});
-
-const moduleSchema = mongoose.Schema({
-    id: String,
-    title: { type: String, required: true },
-    lessons: [lessonSchema]
-});
 
 const courseSchema = mongoose.Schema(
     {
@@ -49,8 +22,6 @@ const courseSchema = mongoose.Schema(
         originalPrice: Number,
         hasMoneyBackGuarantee: { type: Boolean, default: false },
 
-        // Curriculum (Step 3)
-        modules: [moduleSchema],
 
         // Instructor Info
         instructorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -93,16 +64,8 @@ const courseSchema = mongoose.Schema(
         students: { type: Number, default: 0 },
         rating: { type: Number, default: 0 },
         reviews: { type: Number, default: 0 },
-        reviewList: [
-            {
-                user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-                name: String,
-                avatar: String,
-                rating: Number,
-                comment: String,
-                date: { type: Date, default: Date.now }
-            }
-        ],
+        totalLessons: { type: Number, default: 0 }, // NEW
+        totalModules: { type: Number, default: 0 }, // NEW
         image: String, // Fallback to thumbnail
         badge: String, // Legacy single badge
         badgeColor: String,
@@ -115,6 +78,10 @@ const courseSchema = mongoose.Schema(
         timestamps: true,
     }
 );
+
+courseSchema.index({ status: 1 });
+courseSchema.index({ category: 1 });
+courseSchema.index({ instructorId: 1 });
 
 // Virtual for image fallback
 courseSchema.virtual('displayImage').get(function () {

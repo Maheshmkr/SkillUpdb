@@ -7,12 +7,14 @@ const {
     updateInstructorCourse,
     submitCourseForReview,
     deleteInstructorCourse,
+    getInstructorReviews,
 } = require('../controllers/instructorCourseController');
 const { protect } = require('../middleware/authMiddleware');
 
 // All routes require authentication
 router.use(protect);
 
+router.route('/reviews').get(getInstructorReviews); // MUST be before /:id
 router.route('/').get(getInstructorCourses).post(createInstructorCourse);
 
 router

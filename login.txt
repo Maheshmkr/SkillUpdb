@@ -2,3 +2,4 @@ Student	student@skillup.com	student123
 Instructor	instructor@skillup.com	password123
 Admin	admin@skillup.com	admin123
 Learner (Test)	mahesh@gmail.com	password123
+Learner (Test)	gokila@gmail.com	password123

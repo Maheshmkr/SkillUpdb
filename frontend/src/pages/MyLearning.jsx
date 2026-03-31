@@ -134,7 +134,11 @@ export default function MyLearning() {
                       <div className="flex flex-wrap items-center gap-4">
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-secondary/50 px-2 py-1 rounded-md">
                           <BookOpen className="size-3" />
-                          <span>{enrollment.completedLessons.length} / {course.modules.flatMap(m => m.lessons).length} Lessons</span>
+                          <span>
+                            {enrollment.completedLessons?.length || 0} / {
+                              course.totalLessons || (course.modules?.flatMap(m => m.lessons)?.length || 0)
+                            } Lessons
+                          </span>
                         </div>
                         <div className="flex-1 min-w-[120px]">
                           <div className="flex justify-between text-[10px] font-bold mb-1 uppercase tracking-tighter">

@@ -1,43 +1,61 @@
 const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
+const Enrollment = require('../models/Enrollment');
+
+// Helper to format enrollments for the frontend
+const formatEnrollments = async (userId) => {
+    const enrollments = await Enrollment.find({ userId }).populate('courseId');
+    return enrollments.map(e => {
+        const doc = e.toObject();
+        doc.course = doc.courseId;
+        doc.progress = doc.progressPercentage; // Map to frontend expectation
+        doc.completedLessons = doc.completedLessonIds || []; // Map to frontend expectation
+        delete doc.courseId;
+        delete doc.progressPercentage;
+        delete doc.completedLessonIds;
+        return doc;
+    });
+};
 
 // @desc    Get user profile
 // @route   GET /api/users/profile
 // @access  Private
 const getUserProfile = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id)
-        .populate('enrolledCourses.course')
         .populate('certificates.course')
         .populate('badges.course');
 
     if (user) {
-        // Sync missing certificates if any
         let changed = false;
-        user.enrolledCourses.forEach(enrollment => {
-            // Force completion if progress is 100%
-            if (enrollment.progress === 100 && !enrollment.isCompleted) {
+        const enrollments = await Enrollment.find({ userId: user._id }).populate('courseId');
+
+        for (const enrollment of enrollments) {
+            if (enrollment.progressPercentage === 100 && !enrollment.isCompleted) {
                 enrollment.isCompleted = true;
-                changed = true;
+                await enrollment.save();
             }
 
-            if (enrollment.isCompleted && enrollment.course) {
+            if (enrollment.isCompleted && enrollment.courseId) {
                 const hasCert = user.certificates.some(c =>
-                    (c.course?._id || c.course)?.toString() === enrollment.course._id.toString()
+                    (c.course?._id || c.course)?.toString() === enrollment.courseId._id.toString()
                 );
                 if (!hasCert) {
                     user.certificates.push({
-                        course: enrollment.course._id,
+                        course: enrollment.courseId._id,
                         date: enrollment.lastAccessed || Date.now(),
-                        pdfUrl: `/uploads/certificates/${user._id}-${enrollment.course._id}.pdf`
+                        pdfUrl: `/uploads/certificates/${user._id}-${enrollment.courseId._id}.pdf`
                     });
                     changed = true;
                 }
             }
-        });
+        }
 
         if (changed) {
             await user.save();
         }
+
+        const formattedEnrollments = await formatEnrollments(user._id);
+
         res.json({
             _id: user._id,
             name: user.name,
@@ -49,7 +67,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
             about: user.about,
             interests: user.interests,
             stats: user.stats,
-            enrolledCourses: user.enrolledCourses,
+            enrolledCourses: formattedEnrollments,
             certificates: user.certificates,
             badges: user.badges,
         });
@@ -77,11 +95,13 @@ const updateUserProfile = asyncHandler(async (req, res) => {
         user.about = req.body.about || user.about;
         user.interests = req.body.interests || user.interests;
 
-        const savedUser = await user.save();
-        const updatedUser = await User.findById(savedUser._id)
-            .populate('enrolledCourses.course')
+        await user.save();
+        
+        const updatedUser = await User.findById(user._id)
             .populate('certificates.course')
             .populate('badges.course');
+
+        const formattedEnrollments = await formatEnrollments(user._id);
 
         res.json({
             _id: updatedUser._id,
@@ -94,7 +114,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
             about: updatedUser.about,
             interests: updatedUser.interests,
             stats: updatedUser.stats,
-            enrolledCourses: updatedUser.enrolledCourses,
+            enrolledCourses: formattedEnrollments,
             certificates: updatedUser.certificates,
             badges: updatedUser.badges,
             token: req.headers.authorization ? req.headers.authorization.split(' ')[1] : null,
@@ -105,7 +125,4 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = {
-    getUserProfile,
-    updateUserProfile,
-};
+module.exports = { getUserProfile, updateUserProfile };

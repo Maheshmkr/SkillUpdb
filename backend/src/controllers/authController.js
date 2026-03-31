@@ -65,15 +65,28 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 
     if (user && (await user.matchPassword(password))) {
-        // Populate enrolled courses to ensure frontend has immediate access
-        const populatedUser = await User.findById(user._id).populate('enrolledCourses.course');
+        // Fetch enrollments from the new Enrollment model
+        const Enrollment = require('../models/Enrollment');
+        const enrollments = await Enrollment.find({ userId: user._id }).populate('courseId');
+
+        // Map back to the old shape for frontend compatibility
+        const formattedEnrollments = enrollments.map(e => {
+            const doc = e.toObject();
+            doc.course = doc.courseId;
+            doc.progress = doc.progressPercentage; // Map to frontend expectation
+            doc.completedLessons = doc.completedLessonIds || []; // Map to frontend expectation
+            delete doc.courseId;
+            delete doc.progressPercentage;
+            delete doc.completedLessonIds;
+            return doc;
+        });
 
         res.json({
             _id: user.id,
             name: user.name,
             email: user.email,
             role: user.role,
-            enrolledCourses: populatedUser.enrolledCourses,
+            enrolledCourses: formattedEnrollments,
             token: generateToken(user._id),
         });
     } else {

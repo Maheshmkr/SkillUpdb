@@ -46,19 +46,6 @@ const userSchema = mongoose.Schema(
             hoursLearned: { type: Number, default: 0 },
             skillsMastered: { type: Number, default: 0 },
         },
-        enrolledCourses: [
-            {
-                course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
-                progress: { type: Number, default: 0 },
-                completedLessons: [String], // Array of lesson titles or IDs
-                isCompleted: { type: Boolean, default: false },
-                certificateNameConfirmed: { type: Boolean, default: false },
-                lastAccessed: { type: Date, default: Date.now },
-                quizScores: { type: Map, of: Number, default: {} }, // Record scores for quizzes
-                rating: { type: Number, default: 0 },
-                comment: { type: String, default: '' }
-            }
-        ],
         certificates: [
             {
                 course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
@@ -80,6 +67,9 @@ const userSchema = mongoose.Schema(
         timestamps: true,
     }
 );
+
+userSchema.index({ email: 1 });
+userSchema.index({ role: 1 });
 
 // Encrypt password using bcrypt
 userSchema.pre('save', async function () {

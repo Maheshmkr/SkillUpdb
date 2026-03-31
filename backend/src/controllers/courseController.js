@@ -5,7 +5,19 @@ const Course = require('../models/Course');
 // @route   GET /api/courses
 // @access  Public
 const getCourses = asyncHandler(async (req, res) => {
-    const courses = await Course.find({ status: 'Published' });
+    // Add pagination and projection
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const skip = (page - 1) * limit;
+
+    const courses = await Course.find({ status: 'Published' })
+        .select('title subtitle category price rating students image thumbnail instructorId hours')
+        .populate('instructorId', 'name avatar')
+        .skip(skip)
+        .limit(limit);
+
+    // Some frontend components expect courses without the wrapper, some might with pagination. 
+    // We return an array to not break the frontend which expects `courses.map`
     res.json(courses);
 });
 
@@ -17,20 +29,42 @@ const getCourse = asyncHandler(async (req, res) => {
 
     // Check if req.params.id is a valid MongoDB ObjectId
     if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
-        course = await Course.findById(req.params.id);
+        course = await Course.findById(req.params.id).populate('instructorId', 'name avatar');
+    }
+
+    if (!course) {
+        // Try finding by custom string ID
+        course = await Course.findOne({ id: req.params.id }).populate('instructorId', 'name avatar');
     }
 
     if (course) {
-        res.json(course);
+        const Module = require('../models/Module');
+        const Lesson = require('../models/Lesson');
+        const Review = require('../models/Review');
+
+        const modules = await Module.find({ courseId: course._id }).sort('orderIndex').lean();
+        const lessons = await Lesson.find({ courseId: course._id }).sort('orderIndex').lean();
+        const reviewList = await Review.find({ courseId: course._id }).populate('userId', 'name avatar').lean();
+
+        // Assemble modules and lessons
+        const assembledModules = modules.map(m => ({
+            ...m,
+            lessons: lessons.filter(l => l.moduleId.toString() === m._id.toString())
+        }));
+
+        const courseObj = course.toObject();
+        courseObj.modules = assembledModules;
+        courseObj.reviewList = reviewList.map(r => ({
+            ...r,
+            user: r.userId,
+            name: r.userId?.name,
+            avatar: r.userId?.avatar
+        }));
+
+        res.json(courseObj);
     } else {
-        // Try finding by custom string ID
-        const courseByStringId = await Course.findOne({ id: req.params.id });
-        if (courseByStringId) {
-            res.json(courseByStringId);
-        } else {
-            res.status(404);
-            throw new Error('Course not found');
-        }
+        res.status(404);
+        throw new Error('Course not found');
     }
 });
 
