@@ -9,25 +9,17 @@ dotenv.config();
 const app = express();
 
 // Middleware
-const allowedOrigins = [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'https://skill-up-woad-zeta.vercel.app'
-];
+app.use((req, res, next) => {
+    console.log(`🔍 [${new Date().toISOString()}] ${req.method} ${req.url} - Origin: ${req.headers.origin}`);
+    next();
+});
 
 app.use(cors({
-    origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1 || origin.startsWith('http://localhost')) {
-            callback(null, true);
-        } else {
-            callback(null, true); // Still allowing all for now as per previous request "all the url"
-        }
-    },
+    origin: (origin, callback) => callback(null, true), // Highly permissive - allows any origin
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
     credentials: true,
+    optionsSuccessStatus: 200 // Explicitly set to 200 for broader compatibility
 }));
 
 app.use(express.json());
