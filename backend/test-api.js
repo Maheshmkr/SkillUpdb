@@ -1,7 +1,7 @@
 // Test script to verify backend API connectivity
 const axios = require('axios');
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://skill-up-backend-lime.vercel.app/api';
 
 async function testBackend() {
     console.log('🧪 Testing Backend API Connectivity...\n');
