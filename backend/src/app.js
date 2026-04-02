@@ -9,8 +9,15 @@ dotenv.config();
 const app = express();
 
 // Middleware
+app.use(cors({
+    origin: (origin, callback) => callback(null, true),
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    credentials: true,
+}));
+app.options('*', cors()); // Handle preflight for all routes
+
 app.use(express.json());
-app.use(cors());
 
 // Basic Route
 app.get('/', (req, res) => {
