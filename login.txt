@@ -1,8 +1,0 @@
-Student	student@skillup.com	student123
-Instructor	instructor@skillup.com	password123
-Admin	admin@skillup.com	admin123
-Learner (Test)	mahesh@gmail.com	password123
-Learner (Test)	maheshkumar@gmail.com	gokiimahesh@143
-
-
-Database MongoDB Atlas = maheshking@143
