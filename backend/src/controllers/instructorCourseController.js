@@ -51,44 +51,56 @@ const getInstructorCourse = asyncHandler(async (req, res) => {
 // @route   POST /api/instructor/courses
 // @access  Private/Instructor
 const createInstructorCourse = asyncHandler(async (req, res) => {
+    console.log(`📝 [Course Creation] User: ${req.user.name} (${req.user._id})`);
+    
+    // Ensure we don't have modules in the direct course object if we're creating them separately
+    const { modules, ...baseData } = req.body;
+
     const courseData = {
-        ...req.body,
+        ...baseData,
         instructorId: req.user._id,
-        instructor: req.user.name,
+        instructor: req.user.name || 'Unknown Instructor',
         status: 'Draft'
     };
 
-    const course = new Course(courseData);
-    const createdCourse = await course.save();
+    try {
+        const course = new Course(courseData);
+        const createdCourse = await course.save();
+        console.log(`✅ Course created: ${createdCourse._id}`);
     
-    // Save modules if provided during creation
-    if (req.body.modules) {
-        for (let i = 0; i < req.body.modules.length; i++) {
-            const modData = req.body.modules[i];
-            const mod = await Module.create({
-                courseId: createdCourse._id,
-                title: modData.title,
-                orderIndex: i
-            });
+        // Save modules if provided during creation
+        if (modules) {
+            for (let i = 0; i < modules.length; i++) {
+                const modData = modules[i];
+                const mod = await Module.create({
+                    courseId: createdCourse._id,
+                    title: modData.title,
+                    orderIndex: i
+                });
 
-            if (modData.lessons && modData.lessons.length > 0) {
-                for (let j = 0; j < modData.lessons.length; j++) {
-                    const lesData = modData.lessons[j];
-                    await Lesson.create({
-                        courseId: createdCourse._id,
-                        moduleId: mod._id,
-                        title: lesData.title,
-                        type: lesData.type || 'video',
-                        contentUrl: lesData.contentUrl,
-                        questions: lesData.questions || [],
-                        orderIndex: j
-                    });
+                if (modData.lessons && modData.lessons.length > 0) {
+                    for (let j = 0; j < modData.lessons.length; j++) {
+                        const lesData = modData.lessons[j];
+                        await Lesson.create({
+                            courseId: createdCourse._id,
+                            moduleId: mod._id,
+                            title: lesData.title,
+                            type: lesData.type || 'video',
+                            contentUrl: lesData.contentUrl,
+                            questions: lesData.questions || [],
+                            orderIndex: j
+                        });
+                    }
                 }
             }
         }
-    }
 
-    res.status(201).json(createdCourse);
+        res.status(201).json(createdCourse);
+    } catch (error) {
+        console.error('❌ Error creating course:', error.message);
+        res.status(400);
+        throw new Error(`Failed to create course: ${error.message}`);
+    }
 });
 
 // @desc    Update instructor's course

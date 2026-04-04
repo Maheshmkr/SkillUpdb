@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Star, Users, Clock, ShoppingCart, Eye } from 'lucide-react';
+import { BACKEND_URL } from '../api/axiosInstance';
 import { getCourseById } from '../api/courseApi';
 
 const CourseCard = ({ course }) => {
@@ -37,6 +38,11 @@ const CourseCard = ({ course }) => {
 
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
 
+  // Prefix relative thumbnail paths with BACKEND_URL
+  const imageUrl = thumbnail?.startsWith('/uploads')
+    ? `${BACKEND_URL}${thumbnail}`
+    : (thumbnail || 'https://via.placeholder.com/400x225?text=Course+Thumbnail');
+
   return (
     <div
       className="group relative bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col h-full cursor-pointer"
@@ -46,7 +52,7 @@ const CourseCard = ({ course }) => {
       {/* Thumbnail */}
       <div className="relative aspect-video overflow-hidden">
         <img
-          src={thumbnail || 'https://via.placeholder.com/400x225?text=Course+Thumbnail'}
+          src={imageUrl}
           alt={title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />

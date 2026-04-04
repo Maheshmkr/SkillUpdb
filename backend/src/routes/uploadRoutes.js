@@ -36,13 +36,19 @@ const upload = multer({
     },
 });
 
-router.post('/', upload.single('image'), (req, res) => {
+router.post('/', protect, upload.single('image'), (req, res) => {
+    console.log('📸 Upload Request Received');
     if (!req.file) {
+        console.error('❌ No file in request');
         res.status(400);
         throw new Error('No file uploaded');
     }
+    
+    const relativeUrl = `/${req.file.path.replace(/\\/g, '/')}`;
+    console.log(`✅ Image uploaded successfully: ${relativeUrl}`);
+    
     res.send({
-        url: `/${req.file.path.replace(/\\/g, '/')}`,
+        url: relativeUrl,
         message: 'Image uploaded successfully'
     });
 });

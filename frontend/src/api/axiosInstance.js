@@ -2,8 +2,11 @@ import axios from 'axios';
 
 const API_URL = '/api';
 
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+export const BACKEND_URL = BASE_URL.replace(/\/api$/, '');
+
 const axiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+    baseURL: BASE_URL,
 });
 
 // Request interceptor for API calls

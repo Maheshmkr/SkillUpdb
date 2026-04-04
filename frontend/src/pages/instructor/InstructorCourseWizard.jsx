@@ -10,6 +10,7 @@ import BadgeBuilder from "@/components/instructor/BadgeBuilder";
 import CertificateConfigForm from "@/components/instructor/CertificateConfigForm";
 import { initialCourseData } from "@/data/CourseDataModel";
 import { createCourse, updateCourse, getInstructorCourse, submitCourseForReview } from "@/api/courseApi";
+import { BACKEND_URL } from "@/api/axiosInstance";
 import { uploadImage } from "@/api/uploadApi";
 
 const steps = ["Basic Info", "Course Details", "Curriculum", "Badges & Certificates", "Preview & Submit"];
@@ -346,7 +347,11 @@ export default function InstructorCourseWizard() {
                                 >
                                     {courseData.thumbnail ? (
                                         <div className="relative w-full aspect-video rounded-lg overflow-hidden group">
-                                            <img src={courseData.thumbnail} alt="Thumbnail preview" className="w-full h-full object-cover" />
+                                            <img 
+                                                src={courseData.thumbnail.startsWith('/uploads') ? `${BACKEND_URL}${courseData.thumbnail}` : courseData.thumbnail} 
+                                                alt="Thumbnail preview" 
+                                                className="w-full h-full object-cover" 
+                                            />
                                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                                                 <Upload className="size-8 text-white" />
                                                 <p className="text-white font-bold ml-2">Change Image</p>
