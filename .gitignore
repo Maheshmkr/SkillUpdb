@@ -1,2 +1,7 @@
 login.txt
 SkillUp_API_Collection.postman_collection.json
+.env
+node_modules/
+dist/
+build/
+.DS_Store
