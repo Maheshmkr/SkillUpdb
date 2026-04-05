@@ -10,7 +10,7 @@ import { getCourseById } from "@/api/courseApi";
 import { MainLayout } from "@/components/MainLayout";
 
 const tabs = ["Overview", "Syllabus", "Reviews", "Instructor"];
-
+const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 export default function CourseDetailBeforeEnroll() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -188,7 +188,7 @@ export default function CourseDetailBeforeEnroll() {
                             <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden p-6">
                                 <div className="aspect-video bg-gray-100 rounded mb-6 flex items-center justify-center relative group cursor-pointer overflow-hidden border border-gray-200">
                                     <img
-                                        src={course.thumbnail}
+                                        src={`${VITE_BACKEND_URL}${course.thumbnail}`}
                                         alt={course.title}
                                         className="w-full h-full object-cover"
                                     />

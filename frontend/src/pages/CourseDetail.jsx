@@ -13,7 +13,7 @@ import courseVideoBg from "@/assets/course-video-bg.jpg";
 import { getCourseById } from "@/api/courseApi";
 
 const tabs = ["Overview", "Syllabus", "Reviews", "Instructor"];
-
+const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 const learningPoints = [
   "Design complex user interfaces from scratch using industry-standard tools.",
   "Understand the cognitive psychology behind high-conversion UX design.",
@@ -105,7 +105,7 @@ export default function CourseDetail() {
             <div className="relative group aspect-video rounded-2xl overflow-hidden bg-foreground shadow-2xl mb-12 border border-border">
               <div
                 className="absolute inset-0 bg-cover bg-center opacity-60 group-hover:scale-105 transition-transform duration-700"
-                style={{ backgroundImage: `url(${course.thumbnail})` }}
+                style={{ backgroundImage: `url(${VITE_BACKEND_URL}${course.thumbnail})` }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 to-transparent" />
               <button className="absolute inset-0 flex items-center justify-center">

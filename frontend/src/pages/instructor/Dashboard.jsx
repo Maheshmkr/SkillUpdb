@@ -16,7 +16,7 @@ export default function InstructorDashboard() {
         { id: 3, student: "Charlie Brown", course: "UI/UX Design Fundamentals", date: "1 day ago", progress: 45 },
         { id: 4, student: "Diana Prince", course: "Advanced React Patterns", date: "1 day ago", progress: 100 },
     ];
-
+    const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
     return (
         <InstructorLayout>
             <div className="p-6 md:p-10 space-y-8 max-w-7xl mx-auto">

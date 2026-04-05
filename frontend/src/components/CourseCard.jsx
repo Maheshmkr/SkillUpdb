@@ -35,13 +35,13 @@ const CourseCard = ({ course }) => {
   const handleClick = () => {
     navigate(`/course/${_id}`);
   };
-
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
-
+  
+  const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
   // Prefix relative thumbnail paths with BACKEND_URL
-  const imageUrl = thumbnail?.startsWith('/uploads')
-    ? `${BACKEND_URL}${thumbnail}`
-    : (thumbnail || 'https://via.placeholder.com/400x225?text=Course+Thumbnail');
+  const imageUrl = thumbnail
+  ? `${VITE_BACKEND_URL}${thumbnail}`
+  : 'https://via.placeholder.com/400x225?text=Course+Thumbnail';
 
   return (
     <div

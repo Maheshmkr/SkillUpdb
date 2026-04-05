@@ -50,6 +50,7 @@ export default function Dashboard() {
     e.stopPropagation();
     setActiveIndex((prev) => (prev - 1 + enrolledCourses.length) % enrolledCourses.length);
   };
+  const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
   if (isLoading || loadingProfile) return <div className="p-10 text-center">Loading Dashboard...</div>;
 
@@ -198,7 +199,7 @@ export default function Dashboard() {
 
                       return (
                         <Link to={`/learn/${c.id || c._id || enrollment.course}`} key={idx} className="bg-card rounded-xl overflow-hidden border border-border shadow-sm hover:shadow-md transition-all block">
-                          <div className="h-32 bg-cover bg-center" style={{ backgroundImage: `url(${c.thumbnail})` }} />
+                          <div className="h-32 bg-cover bg-center" style={{ backgroundImage: `url(${VITE_BACKEND_URL}${c.thumbnail})` }} />
                           <div className="p-4">
                             <div className="flex justify-between items-start mb-1 gap-2">
                               <h4 className="font-bold text-sm line-clamp-1">{c.title}</h4>

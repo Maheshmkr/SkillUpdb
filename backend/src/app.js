@@ -57,8 +57,8 @@ app.use('/api/admin/users', adminUserRoutes);
 app.use('/api/upload', uploadRoutes);
 
 // Static folders
-const uploadsPath = path.join(__dirname, '..', 'uploads');
-app.use('/uploads', express.static(uploadsPath));
+const uploadsPath = path.resolve('uploads');
+app.use('/api/uploads', express.static(uploadsPath));
 
 // Error Handling Middleware (placeholder)
 app.use((err, req, res, next) => {

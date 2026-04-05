@@ -16,7 +16,7 @@ export default function MyCourses() {
     const [searchQuery, setSearchQuery] = React.useState('');
     const [loading, setLoading] = React.useState(true);
     const navigate = useNavigate();
-
+    const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
     React.useEffect(() => {
         const fetchCourses = async () => {
             try {
@@ -59,7 +59,7 @@ export default function MyCourses() {
         const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesStatus && matchesSearch;
     });
-
+    console.log('Filtered Courses:', filteredCourses);
     const getStatusColor = (status) => {
         switch (status) {
             case "Published": return "bg-green-500/10 text-green-500 border-green-200/20";
@@ -120,7 +120,7 @@ export default function MyCourses() {
                     )}
                     {filteredCourses.map((course) => (
                         <div key={course._id} className="bg-card rounded-xl border border-border shadow-sm overflow-hidden group hover:shadow-md transition-shadow">
-                            <div className="aspect-video bg-cover bg-center relative" style={{ backgroundImage: `url(${course.thumbnail || course.image || '/assets/course-placeholder.jpg'})` }}>
+                            <div className="aspect-video bg-cover bg-center relative" style={{ backgroundImage: `url(${VITE_BACKEND_URL}${course.thumbnail || course.image || '/assets/course-placeholder.jpg'})` }}>
                                 <div className="absolute top-3 left-3">
                                     <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider border ${getStatusColor(course.status)} backdrop-blur-md`}>
                                         {course.status}
